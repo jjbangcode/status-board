@@ -7,12 +7,14 @@
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#555d6b;--line:#e3e6eb;--run:#2f6fdb;--ok:#2e8b57;--bad:#c94343;--warn:#c98a1a;--bar:#e9edf3;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--ink:#e8ebf0;--mute:#98a0ae;--line:#2c323b;--run:#6c9bf0;--ok:#5cc08a;--bad:#e27474;--warn:#e0b050;--bar:#2a3039;color-scheme:dark}}
-*{box-sizing:border-box}
+*{box-sizing:border-box;min-width:0}
+html,body{overflow-x:hidden}
+body,.card,.item>div{overflow-wrap:anywhere}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
 main{max-width:880px;margin:0 auto;display:grid;gap:14px}
 header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
 h1{font-size:22px;margin:0}
-.upd{color:var(--mute);font-size:13px}
+.upd{color:var(--mute);font-size:13px;flex-basis:100%}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
 .card h2{font-size:15px;letter-spacing:.02em;color:var(--ink);margin:0 0 10px;font-weight:600}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
