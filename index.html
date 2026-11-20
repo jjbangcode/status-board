@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>작업 현황</title><meta name="robots" content="noindex">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#6b7383;--line:#e3e6eb;--run:#2f6fdb;--ok:#2e8b57;--bad:#c94343;--warn:#c98a1a;--bar:#e9edf3;color-scheme:light}
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#555d6b;--line:#e3e6eb;--run:#2f6fdb;--ok:#2e8b57;--bad:#c94343;--warn:#c98a1a;--bar:#e9edf3;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--ink:#e8ebf0;--mute:#98a0ae;--line:#2c323b;--run:#6c9bf0;--ok:#5cc08a;--bad:#e27474;--warn:#e0b050;--bar:#2a3039;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
 main{max-width:880px;margin:0 auto;display:grid;gap:14px}
 header{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px}
-h1{font-size:20px;margin:0}
+h1{font-size:22px;margin:0}
 .upd{color:var(--mute);font-size:13px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.card h2{font-size:13px;letter-spacing:.04em;color:var(--mute);margin:0 0 10px;font-weight:600}
+.card h2{font-size:15px;letter-spacing:.02em;color:var(--ink);margin:0 0 10px;font-weight:600}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--mute)}
 .dot.busy,.dot.running{background:var(--run);animation:p 1.4s infinite}.dot.done{background:var(--ok)}.dot.failed{background:var(--bad)}
 @keyframes p{50%{opacity:.35}}
 .big{font-size:17px;font-weight:600}
-.mute{color:var(--mute);font-size:13px}
+.mute{color:var(--mute);font-size:14px}
 .list{display:grid;gap:8px}
 .item{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .item:first-child{border-top:0}
@@ -28,9 +28,18 @@ h1{font-size:20px;margin:0}
 .bar{height:8px;border-radius:99px;background:var(--bar);overflow:hidden;margin:6px 0 2px}
 .bar i{display:block;height:100%;background:var(--run)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.stat .v{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums}
+.stat .v{font-size:24px;font-weight:650;font-variant-numeric:tabular-nums}
 .v.warn{color:var(--warn)}.v.bad{color:var(--bad)}.v.ok{color:var(--ok)}
 .empty{color:var(--mute);font-size:14px}
+
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ag{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:4px;background:var(--bg)}
+.ag.running{border-color:var(--run);box-shadow:0 0 0 2px color-mix(in srgb,var(--run) 25%,transparent)}
+.ag .nm{font-size:17px;font-weight:700}
+.ag .role{font-size:13px;color:var(--mute)}
+.ag .st{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600}
+.ag .what{font-size:13px;color:var(--ink);word-break:break-all}
+.hist{margin-top:12px}
 code{font-size:12px;color:var(--mute);word-break:break-all}
 </style>
 </head>
@@ -40,7 +49,7 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트</h2><div id="agents" class="list"></div></section>
+  <section class="card"><h2>에이전트 5명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -50,6 +59,13 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 </main>
 <script>
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
+const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["paper-writer","논문 초안","원고 쓰기"]];
+function team(ag,now){
+  return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.agent===id);
+    const st=!r?"idle":r.state;
+    const lab=!r?"대기 (아직 일 안 함)":st==="running"?"일하는 중 · "+dur(now-r.start)+"째":st==="done"?"대기 · "+ago(r.end,now)+" 끝남":st==="failed"?"실패 · "+ago(r.end,now):"확인 안 됨";
+    return `<div class="ag ${st}"><div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span>${lab}</div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
+}
 const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안 됨"};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
@@ -60,7 +76,8 @@ function render(d){
   const busy=o.state==="busy";
   document.getElementById("orch").innerHTML=o.since?`<div class="row"><span class="dot ${busy?"busy":"done"}"></span><span class="big">${busy?"일하는 중":"대기 중"}</span><span class="mute">${ago(o.since,now)}부터</span></div>`:`<span class="empty">아직 기록 없음 (새 세션부터 기록돼요)</span>`;
   const ag=d.agents;
-  document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div></div></div>`).join(""):`<div class="empty">에이전트 기록 없음</div>`;
+  document.getElementById("team").innerHTML=team(ag,now);
+  document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div></div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
   const js=d.jobs;
   document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
   const s=d.system||{};const ld=s.load?s.load[0]:null;
