@@ -87,7 +87,7 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트 5명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
+  <section class="card"><h2>에이전트 6명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -96,18 +96,19 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
   <section class="card"><h2>최근 학습 기록</h2><div id="runs" class="list"></div></section>
 </main>
 <script>
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
 const SPR={
 "code-writer":["..HHHH..",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
 "code-checker":["..HHHH..",".HHHHHH.",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
 "compute-manager":["H......H",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SSSS..","BBBBBBBB","BBBBBBBB"],
 "research-advisor":["...HH...","..HHHH..",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
+"results-analyst":["........","..HHHH..",".HSSSSH.",".GEGGEG.",".SSSSSS.","..SMMS..","..BBBB.R",".BBBBBRR"],
 "paper-writer":[".HHHHHH.","HHHHHHHH",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB.T",".BBBBBBT"]};
-const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e"};
-function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8"};
+const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f"};
+function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c"};
  let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
-const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["paper-writer","논문 초안","원고 쓰기"]];
+const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["results-analyst","결과 분석","비교·그림·해석"],["paper-writer","논문 초안","원고 쓰기"]];
 function team(ag,now){
   return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.agent===id);
     const st=!r?"idle":r.state;
