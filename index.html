@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>작업 현황</title><meta name="robots" content="noindex">
+<title>작업 현황</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"><meta name="robots" content="noindex">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1d2330;--mute:#555d6b;--line:#e3e6eb;--run:#2f6fdb;--ok:#2e8b57;--bad:#c94343;--warn:#c98a1a;--bar:#e9edf3;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#14171c;--card:#1d2128;--ink:#e8ebf0;--mute:#98a0ae;--line:#2c323b;--run:#6c9bf0;--ok:#5cc08a;--bad:#e27474;--warn:#e0b050;--bar:#2a3039;color-scheme:dark}}
@@ -44,7 +44,42 @@ h1{font-size:22px;margin:0}
 .hist{margin-top:12px}
 code{font-size:12px;color:var(--mute);word-break:break-all}
 </style>
-</head>
+<style id="blocktheme">
+:root{--sky1:#7ec8f0;--sky2:#bfe6fa;--grass:#5fae3c;--grass2:#4a9330;--dirt:#8a5a35;--dirt2:#74482a;--stone:#c9c9c9;--stone2:#a9a9a9;--panel:#efe9dc;--edgeL:#fffaf0;--edgeD:#6f6a60;--ink:#2a2620;--mute:#5a554c;--run:#2f7de1;--ok:#3c9a3c;--bad:#d04040;--warn:#d89a1c;--bar:#5c574e}
+@media (prefers-color-scheme:dark){:root{--sky1:#0e1838;--sky2:#22335e;--panel:#3a3833;--edgeL:#5c5952;--edgeD:#1c1b19;--ink:#f2eee4;--mute:#c8c1b2;--bar:#22211e;color-scheme:dark}}
+body{background:linear-gradient(var(--sky1),var(--sky2) 60vh) fixed;font-weight:600;image-rendering:pixelated}
+body::before{content:"";display:block;height:28px;margin:-16px -16px 16px;
+ background:linear-gradient(var(--grass) 0 9px,var(--grass2) 9px 12px,transparent 12px),
+ repeating-linear-gradient(90deg,var(--dirt) 0 14px,var(--dirt2) 14px 16px);}
+h1,.card h2,.ag .nm,.stat .v,.px{font-family:"Press Start 2P","Apple SD Gothic Neo",monospace}
+h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:3px 3px 0 #2a2620}
+.upd{color:#13202e;font-weight:700}
+@media (prefers-color-scheme:dark){.upd{color:#dfe8ff}}
+.card{background:var(--panel);border:0;border-radius:0;
+ box-shadow:inset 4px 4px 0 var(--edgeL),inset -4px -4px 0 var(--edgeD),0 0 0 3px #2a2620;padding:16px 18px}
+.card h2{font-size:11px;line-height:1.7;color:var(--ink);text-transform:none;margin-bottom:12px}
+.card h2::before{content:"";display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:-1px;background:var(--grass);box-shadow:inset -2px -2px 0 var(--grass2)}
+.dot{border-radius:0;width:12px;height:12px;box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
+.dot.busy,.dot.running{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.25}}
+.ag{border:0;border-radius:0;background:var(--stone);box-shadow:inset 3px 3px 0 #e8e8e8,inset -3px -3px 0 #7d7d7d,0 0 0 2px #2a2620;grid-template-columns:auto 1fr;column-gap:10px;color:#22201c}
+@media (prefers-color-scheme:dark){.ag{background:#5e5e5e;box-shadow:inset 3px 3px 0 #7c7c7c,inset -3px -3px 0 #3b3b3b,0 0 0 2px #111;color:#f4f4f4}}
+.ag>svg{grid-row:1/span 4;width:40px;height:40px}
+.ag.running{box-shadow:inset 3px 3px 0 #e8e8e8,inset -3px -3px 0 #7d7d7d,0 0 0 3px var(--run)}
+.ag.running>svg{animation:hop .6s steps(2) infinite}
+@keyframes hop{50%{transform:translateY(-4px)}}
+.ag .nm{font-size:11px;line-height:1.6}
+.ag .role,.ag .what{color:inherit;opacity:.8}
+.ag .st{font-size:14px}
+.tag{border-radius:0;background:var(--stone2);color:#22201c}
+.bar{border-radius:0;height:14px;background:var(--bar);box-shadow:0 0 0 2px #2a2620}
+.bar i{background:repeating-linear-gradient(90deg,var(--grass) 0 12px,var(--grass2) 12px 14px)}
+.stat{background:rgba(0,0,0,.06);padding:10px;box-shadow:inset 2px 2px 0 rgba(0,0,0,.15)}
+.stat .v{font-size:14px;line-height:1.8}
+.stat .v .mute{font-family:inherit;font-size:9px}
+#rf{font-family:"Press Start 2P",monospace!important;font-size:10px!important;border-radius:0!important;border:0!important;background:var(--stone)!important;color:#22201c!important;box-shadow:inset 2px 2px 0 #eee,inset -2px -2px 0 #777,0 0 0 2px #2a2620;padding:8px 10px!important;cursor:pointer}
+.item{border-top:2px dashed rgba(0,0,0,.18)}
+</style></head>
 <body>
 <main>
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
@@ -61,12 +96,22 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 </main>
 <script>
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
+const SPR={
+"code-writer":["..HHHH..",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
+"code-checker":["..HHHH..",".HHHHHH.",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
+"compute-manager":["H......H",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SSSS..","BBBBBBBB","BBBBBBBB"],
+"research-advisor":["...HH...","..HHHH..",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
+"paper-writer":[".HHHHHH.","HHHHHHHH",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB.T",".BBBBBBT"]};
+const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e"};
+function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8"};
+ let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
+ return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
 const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["paper-writer","논문 초안","원고 쓰기"]];
 function team(ag,now){
   return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.agent===id);
     const st=!r?"idle":r.state;
     const lab=!r?"대기 (아직 일 안 함)":st==="running"?"일하는 중 · "+dur(now-r.start)+"째":st==="done"?"대기 · "+ago(r.end,now)+" 끝남":st==="failed"?"실패 · "+ago(r.end,now):"확인 안 됨";
-    return `<div class="ag ${st}"><div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span>${lab}</div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
+    return `<div class="ag ${st}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span>${lab}</div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
 }
 const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안 됨"};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
