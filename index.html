@@ -42,6 +42,12 @@ h1{font-size:22px;margin:0}
 .ag .st{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600}
 .ag .what{font-size:13px;color:var(--ink);word-break:break-all}
 .hist{margin-top:12px}
+.note{padding:12px 0;border-top:2px dashed rgba(0,0,0,.18)}
+.note:first-child{border-top:0}
+.note .t{font-size:16px;font-weight:700}
+.note .s{font-size:13px;color:var(--mute);margin:2px 0 6px}
+.note ul{margin:0;padding-left:20px}
+.note li{margin:3px 0;font-size:14px}
 code{font-size:12px;color:var(--mute);word-break:break-all}
 </style>
 <style id="blocktheme">
@@ -94,6 +100,8 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
   <section class="card"><h2>컴퓨터 상태</h2><div id="sys" class="grid"></div></section>
 
   <section class="card"><h2>최근 학습 기록</h2><div id="runs" class="list"></div></section>
+
+  <section class="card"><h2>실험 노트 · 결과 정리</h2><div id="notes" class="list"></div></section>
 </main>
 <script>
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
@@ -110,7 +118,7 @@ function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
 const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["results-analyst","결과 분석","비교·그림·해석"],["paper-writer","논문 초안","원고 쓰기"]];
 function team(ag,now){
-  return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.agent===id);
+  return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.role===id||a.agent===id);
     const st=!r?"idle":r.state;
     const lab=!r?"대기 (아직 일 안 함)":st==="running"?"일하는 중 · "+dur(now-r.start)+"째":st==="done"?"대기 · "+ago(r.end,now)+" 끝남":st==="failed"?"실패 · "+ago(r.end,now):"확인 안 됨";
     return `<div class="ag ${st}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span>${lab}</div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
@@ -119,6 +127,7 @@ const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
+function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${esc(n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
 function render(d){
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -139,6 +148,7 @@ function render(d){
    <div class="stat"><div class="mute">메모리 여유</div><div class="v ${mcls}">${s.mem_free_pct??"–"}%</div></div>
    <div class="stat"><div class="mute">디스크 여유</div><div class="v ${dcls}">${s.disk_free_gb??"–"} GB</div></div>
    <div class="stat"><div class="mute">발열 (CPU 속도)</div><div class="v ${tcls}">${s.cpu_speed_limit??"–"}%</div></div>`;
+  document.getElementById("notes").innerHTML=notesHTML(d.notes);
   document.getElementById("runs").innerHTML=(d.recent_runs||[]).map(r=>`<div class="item"><span class="dot done"></span><div><div>${esc(r.name)}</div><div class="mute">${esc(r.last)} · ${ago(r.mtime,now)}</div></div></div>`).join("")||`<div class="empty">없음</div>`;
 }
 const GIST=location.hash.slice(1).replace(/[^0-9a-f]/g,"");
