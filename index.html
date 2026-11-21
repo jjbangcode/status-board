@@ -87,6 +87,10 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 #rf{font-family:"Press Start 2P",monospace!important;font-size:10px!important;border-radius:0!important;border:0!important;background:var(--stone)!important;color:#22201c!important;box-shadow:inset 2px 2px 0 #eee,inset -2px -2px 0 #777,0 0 0 2px #2a2620;padding:8px 10px!important;cursor:pointer}
 .item{border-top:2px dashed rgba(0,0,0,.18)}
 .nopen{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.mq{flex:1;overflow:hidden;white-space:nowrap;min-width:0}
+.mq>span{display:inline-block;padding-right:4px}
+.mq.go>span{animation:mq var(--t,6s) linear infinite}
+@keyframes mq{0%,15%{transform:translateX(0)}85%,100%{transform:translateX(var(--d))}}
 .files{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .fbtn{font:inherit;font-size:13px;padding:4px 8px;border:2px solid #22201c;background:var(--bar);color:var(--ink);border-radius:0;cursor:pointer;max-width:100%;text-align:left}
 .fbtn.off{opacity:.45;cursor:default;border-style:dashed}
@@ -160,13 +164,13 @@ function team(ag,now){
   return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.role===id||a.agent===id);
     const st=!r?"idle":r.state;
     const lab=!r?"대기 (아직 일 안 함)":st==="running"?"일하는 중 · "+dur(now-r.start)+"째":st==="done"?"대기 · "+ago(r.end,now)+" 끝남":st==="failed"?"실패 · "+ago(r.end,now):"확인 안 됨";
-    return `<div class="ag ${st}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span>${lab}</div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
+    return `<div class="ag ${st}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span><span class="mq"><span>${lab}</span></span></div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
 }
 const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안 됨"};
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
-function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t nopen" data-f="${esc((n.files||[])[0]||"")}">📝 ${esc(n.title)} <span class="mute" style="font-size:12px">▶ 열기</span></div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}${filesHTML(n.files)}</div>`).join("")||`<div class="empty">노트 없음</div>`}
+function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t nopen" data-f="${esc((n.files||[])[0]||"")}">📝 ${esc(n.title)} <span class="mute" style="font-size:12px">▶ 열기</span></div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
 function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -174,6 +178,8 @@ function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   document.getElementById("orch").innerHTML=o.since?`<div class="row"><span class="dot ${busy?"busy":"done"}"></span><span class="big">${busy?"일하는 중":"대기 중"}</span><span class="mute">${ago(o.since,now)}부터</span></div>`:`<span class="empty">아직 기록 없음 (새 세션부터 기록돼요)</span>`;
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
+  requestAnimationFrame(()=>document.querySelectorAll(".mq").forEach(m=>{const o=m.firstElementChild.scrollWidth-m.clientWidth;
+    m.classList.toggle("go",o>2);if(o>2){m.style.setProperty("--d",-o+"px");m.style.setProperty("--t",Math.max(4,o/12+3)+"s")}}));
   document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
   const js=d.jobs;
   document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
@@ -204,7 +210,9 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-tick();setInterval(tick,90000);document.getElementById("rf").onclick=tick;
+tick();setInterval(tick,90000);
+document.getElementById("rf").onclick=async e=>{const b=e.currentTarget;b.disabled=true;b.textContent="불러오는 중…";
+  await tick();b.textContent="새로고침 ✓";setTimeout(()=>{b.textContent="새로고침";b.disabled=false},1500)};
 </script>
 </body>
 </html>
