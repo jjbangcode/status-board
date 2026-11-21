@@ -146,7 +146,7 @@ async function openFile(f){const v=document.getElementById("viewer"),b=document.
   const key=(f.replace(/\//g,"__")+(f.endsWith(".png")?".b64":"")).normalize("NFC");
   try{const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());
     if(!r.ok)throw new Error(r.status);const t=await r.text();
-    if(f.endsWith(".png")){const i=new Image();i.src="data:image/png;base64,"+t.trim();i.alt=f;b.innerHTML="";b.appendChild(i)}
+    if(f.endsWith(".png")){const i=new Image();i.onload=()=>{if(i.naturalWidth>2400){i.style.maxWidth="none";i.style.width="1100px"}};i.src="data:image/png;base64,"+t.trim();i.alt=f;b.innerHTML='<div class="mute" style="font-size:12px;margin-bottom:6px">큰 그림은 옆으로 밀어서 보세요 ↔</div>';b.appendChild(i)}
     else if(f.endsWith(".html")){const doc=new DOMParser().parseFromString(t,"text/html");
       await Promise.all([...doc.querySelectorAll("img[data-src]")].map(async im=>{try{
         const k=(im.dataset.src.replace(/\//g,"__")+".b64").normalize("NFC");
@@ -253,7 +253,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="32";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="33";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
