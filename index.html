@@ -59,6 +59,10 @@ h1{font-size:22px;margin:0}
 .faces .f{display:flex;flex-direction:column;align-items:center;width:52px;font-size:10px;color:var(--mute);opacity:.45}
 .faces .f.on{opacity:1;color:var(--ink)}.faces .f.on svg{outline:2px solid var(--run);border-radius:4px}
 .faces svg{width:30px;height:30px}
+.faces svg.runner{width:30px;height:56px}
+.runner .fb{visibility:hidden}.runner .fa,.runner .fb{animation:legs .32s steps(1) infinite}.runner .fb{animation-delay:.16s}
+@keyframes legs{0%{visibility:visible}50%{visibility:hidden}}
+.faces .f:not(.on) svg{margin-top:26px}
 .faces .f{position:relative}
 .faces .f.on svg{animation:run 1.2s ease-in-out infinite,hop .2s ease-in-out infinite alternate}
 @keyframes run{0%{translate:-6px 0;scale:1 1}45%{translate:6px 0;scale:1 1}50%{translate:6px 0;scale:-1 1}95%{translate:-6px 0;scale:-1 1}100%{translate:-6px 0;scale:1 1}}
@@ -218,6 +222,11 @@ const PAL={"orchestrator":"#222","code-writer":"#3b7dd8","code-checker":"#d8a03b
 function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c"};
  let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
+function runner(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c",K:"#333"};
+ const rect=(rows,dy)=>{let r="";rows.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y+dy}" width="1" height="1" fill="${c[ch]}"/>`}));return r};
+ const A=["...BB...","S.BBBB..","..BBBB.S","...BB...","..K..K..",".K....K.","K......K"];
+ const Bf=["...BB...","..BBBBS.",".SBBBB..","...BB...","...KK...","...K.K..","..K..K.."];
+ return `<svg class="runner" viewBox="0 0 8 15" shape-rendering="crispEdges" aria-hidden="true">${rect(p,0)}<g class="fa">${rect(A,8)}</g><g class="fb">${rect(Bf,8)}</g></svg>`}
 const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["codex-reviewer","Codex 검토","최종 관문·교차 검토"],["session-recorder","기록","인수인계·다른 창 이어 하기"],["debate-moderator","토론","전문가 8명 토론 진행"],["html-publisher","노트 HTML","노트를 보기 좋게"]];
 function nowHTML(ag,now){
   const run=TEAM.map(([id,nm])=>[id,nm,ag.find(a=>(a.role===id||a.agent===id)&&a.state==="running")]).filter(x=>x[2]);
@@ -225,10 +234,10 @@ function nowHTML(ag,now){
 function facesHTML(ag){const D=window.__d||{},G=D.guard||{state:"off"},now=D.now||Date.now()/1000,o=D.orchestrator||{};
   const tm=s=>{s=Math.max(0,Math.round(s));return s<60?s+"초":s<3600?Math.floor(s/60)+"분":Math.floor(s/3600)+"시간"+Math.round(s%3600/60)+"분"};
   const ob=o.state==="busy";
-  const head=`<div class="f ${ob?"on":""}"><span class="tt${ob&&o.since?"":" no"}">${ob&&o.since?tm(now-o.since):"&nbsp;"}</span>${sprite("orchestrator")}<span>오케스트레이터</span></div>`;
+  const head=`<div class="f ${ob?"on":""}"><span class="tt${ob&&o.since?"":" no"}">${ob&&o.since?tm(now-o.since):"&nbsp;"}</span>${ob?runner("orchestrator"):sprite("orchestrator")}<span>오케스트레이터</span></div>`;
   return head+TEAM.map(([id,nm])=>{let on,st=null;
     if(id==="compute-manager"){const r=ag.filter(a=>(a.role===id||a.agent===id)&&a.state==="running").sort((a,b)=>a.start-b.start)[0];on=G.state!=="off"||!!r;if(r)st=r.start}else{const r=ag.filter(a=>(a.role===id||a.agent===id)&&a.state==="running").sort((a,b)=>a.start-b.start)[0];on=!!r;if(r)st=r.start}
-    return `<div class="f ${on?"on":""}"><span class="tt${st?"":" no"}">${st?tm(now-st):"&nbsp;"}</span>${sprite(id)}<span>${nm}</span></div>`}).join("")}
+    return `<div class="f ${on?"on":""}"><span class="tt${st?"":" no"}">${st?tm(now-st):"&nbsp;"}</span>${on?runner(id):sprite(id)}<span>${nm}</span></div>`}).join("")}
 function team(ag,now){
   const G=(window.__d&&window.__d.guard)||{state:"off"};
   const isRun=id=>ag.some(a=>(a.role===id||a.agent===id)&&a.state==="running");
@@ -324,7 +333,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="48";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="49";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
