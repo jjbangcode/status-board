@@ -210,7 +210,10 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-tick();setInterval(tick,90000);
+const VER="18";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
+  const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
+tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
 document.getElementById("rf").onclick=async e=>{const b=e.currentTarget;b.disabled=true;b.textContent="불러오는 중…";
   await tick();b.textContent="새로고침 ✓";setTimeout(()=>{b.textContent="새로고침";b.disabled=false},1500)};
 </script>
