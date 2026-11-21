@@ -59,6 +59,7 @@ h1{font-size:22px;margin:0}
 .faces .f{display:flex;flex-direction:column;align-items:center;width:52px;font-size:10px;color:var(--mute);opacity:.45}
 .faces .f.on{opacity:1;color:var(--ink)}.faces .f.on svg{outline:2px solid var(--run);border-radius:4px}
 .faces svg{width:30px;height:30px}
+.faces .tt{font-size:10px;font-weight:700;color:var(--run);min-height:13px;line-height:13px}
 .ag.idle{opacity:.55}
 .note{padding:12px 0;border-top:2px dashed rgba(0,0,0,.18)}
 .note:first-child{border-top:0}
@@ -141,9 +142,7 @@ a.fbtn{text-decoration:none;display:inline-block}
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 지금 하는 일만 보여요 (끝난 일은 바로 사라짐) · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
   <section class="card"><h2>토론 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">제목을 누르면 결론·할 일·자세한 내용이 열려요</div><div id="debates" class="list"></div></section>
-  <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트 12명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -151,6 +150,9 @@ a.fbtn{text-decoration:none;display:inline-block}
 
 
   <section class="card"><h2>실험 노트 · 결과 정리</h2><div id="notes" class="list"></div></section>
+
+  <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
+  <section class="card"><h2>에이전트 12명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
@@ -196,7 +198,7 @@ const SPR={
 "session-recorder":["..HHHH..",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","TTBBBB..","TTBBBBBB"],
 "debate-moderator":["H.HHHH.H",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
 "html-publisher":["HHHHHHHH","..HHHH..",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB..","BBBBBBBB"]};
-const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f","html-publisher":"#1f9fb0","figure-maker":"#c43b8a","note-writer":"#6b8e23","codex-reviewer":"#111111","session-recorder":"#8a6d3b","debate-moderator":"#2e7d6b"};
+const PAL={"orchestrator":"#222","code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f","html-publisher":"#1f9fb0","figure-maker":"#c43b8a","note-writer":"#6b8e23","codex-reviewer":"#111111","session-recorder":"#8a6d3b","debate-moderator":"#2e7d6b"};
 function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c"};
  let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
@@ -204,9 +206,13 @@ const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker"
 function nowHTML(ag,now){
   const run=TEAM.map(([id,nm])=>[id,nm,ag.find(a=>(a.role===id||a.agent===id)&&a.state==="running")]).filter(x=>x[2]);
   return run.map(([id,nm,r])=>`<div class="nw">${sprite(id)}<div><div class="n">⏳ ${nm} <span class="t">· ${dur(now-r.start)}째</span></div><div class="d">${esc(r.desc||"")}</div></div></div>`).join("")||`<div class="empty">지금 일하는 에이전트 없음</div>`}
-function facesHTML(ag){const G=(window.__d&&window.__d.guard)||{state:"off"};
-  return TEAM.map(([id,nm])=>{const on=id==="compute-manager"?G.state!=="off":ag.some(a=>(a.role===id||a.agent===id)&&a.state==="running");
-    return `<div class="f ${on?"on":""}">${sprite(id)}<span>${nm}</span></div>`}).join("")}
+function facesHTML(ag){const D=window.__d||{},G=D.guard||{state:"off"},now=D.now||Date.now()/1000,o=D.orchestrator||{};
+  const tm=s=>{s=Math.max(0,Math.round(s));return s<60?s+"초":s<3600?Math.floor(s/60)+"분":Math.floor(s/3600)+"시간"+Math.round(s%3600/60)+"분"};
+  const ob=o.state==="busy";
+  const head=`<div class="f ${ob?"on":""}"><span class="tt">${ob&&o.since?tm(now-o.since):"&nbsp;"}</span>${sprite("orchestrator")}<span>오케스트레이터</span></div>`;
+  return head+TEAM.map(([id,nm])=>{let on,st=null;
+    if(id==="compute-manager"){on=G.state!=="off"}else{const r=ag.filter(a=>(a.role===id||a.agent===id)&&a.state==="running").sort((a,b)=>a.start-b.start)[0];on=!!r;if(r)st=r.start}
+    return `<div class="f ${on?"on":""}"><span class="tt">${st?tm(now-st):"&nbsp;"}</span>${sprite(id)}<span>${nm}</span></div>`}).join("")}
 function team(ag,now){
   const G=(window.__d&&window.__d.guard)||{state:"off"};
   const isRun=id=>ag.some(a=>(a.role===id||a.agent===id)&&a.state==="running");
@@ -302,7 +308,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="44";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="45";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
