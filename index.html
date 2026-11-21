@@ -111,7 +111,7 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트 7명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
+  <section class="card"><h2>에이전트 7명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록 (3개, 전체는 Mac 의 work_log.txt)</div><div id="agents" class="list"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -180,7 +180,7 @@ function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   document.getElementById("team").innerHTML=team(ag,now);
   requestAnimationFrame(()=>document.querySelectorAll(".mq").forEach(m=>{const o=m.firstElementChild.scrollWidth-m.clientWidth;
     m.classList.toggle("go",o>2);if(o>2){m.style.setProperty("--d",-o+"px");m.style.setProperty("--t",Math.max(4,o/12+3)+"s")}}));
-  document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
+  document.getElementById("agents").innerHTML=ag.length?ag.slice(0,3).map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
   const js=d.jobs;
   document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
   const s=d.system||{};const ld=s.load?s.load[0]:null;
