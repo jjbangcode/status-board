@@ -193,7 +193,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
     m.classList.toggle("go",o>2);if(o>2){m.style.setProperty("--d",-o+"px");m.style.setProperty("--t",Math.max(4,o/12+3)+"s")}}));
   document.getElementById("agents").innerHTML=ag.length?ag.slice(0,3).map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
   const js=d.jobs;
-  document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
+  document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.desc||j.script)}</div><div class="mute" style="font-size:12px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
   const s=d.system||{};const ld=s.load?s.load[0]:null;
   const lcls=ld==null?"":ld>s.ncpu*0.75?"bad":ld>7?"warn":"ok";
   const mcls=s.mem_free_pct<15?"bad":s.mem_free_pct<25?"warn":"ok";
@@ -224,7 +224,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="27";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="28";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
