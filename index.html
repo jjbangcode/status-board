@@ -107,7 +107,7 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트 6명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
+  <section class="card"><h2>에이전트 7명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록</div><div id="agents" class="list"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -118,19 +118,27 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
-const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
+const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
 function filesHTML(fs){if(!fs||!fs.length)return "";return `<div class="files">${fs.map(f=>{const on=UP.has(f);const nm=f.split("/").pop();
   return `<button class="fbtn${on?"":" off"}" data-f="${esc(f)}" title="${esc(f)}">${ICON(f)} ${esc(nm)}${on?"":" (올리는 중)"}</button>`}).join("")}</div>`}
 function csvTable(t){const rows=t.trim().split(/\r?\n/).slice(0,300).map(l=>l.split(","));
   return `<div style="overflow:auto"><table>${rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>`}
 async function openFile(f){const v=document.getElementById("viewer"),b=document.getElementById("vbody");
-  document.getElementById("vname").textContent=f;b.innerHTML='<div class="mute">불러오는 중…</div>';v.classList.add("on");
+  document.getElementById("vname").textContent=f;b.style.padding="";b.innerHTML='<div class="mute">불러오는 중…</div>';v.classList.add("on");
   const key=f.replace(/\//g,"__")+(f.endsWith(".png")?".b64":"");
   try{const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());
     if(!r.ok)throw new Error(r.status);const t=await r.text();
     if(f.endsWith(".png")){const i=new Image();i.src="data:image/png;base64,"+t.trim();i.alt=f;b.innerHTML="";b.appendChild(i)}
+    else if(f.endsWith(".html")){const doc=new DOMParser().parseFromString(t,"text/html");
+      await Promise.all([...doc.querySelectorAll("img[data-src]")].map(async im=>{try{
+        const k=im.dataset.src.replace(/\//g,"__")+".b64";
+        const q=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(k)+"?t="+Date.now());
+        if(q.ok)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
+      doc.querySelectorAll("script").forEach(x=>x.remove());
+      const fr=document.createElement("iframe");fr.setAttribute("sandbox","");fr.style.cssText="border:0;width:100%;height:100%;display:block;background:#fff";
+      fr.srcdoc="<!doctype html>"+doc.documentElement.outerHTML;b.innerHTML="";b.style.padding="0";b.appendChild(fr)}
     else if(f.endsWith(".csv"))b.innerHTML=csvTable(t);
     else{const pr=document.createElement("pre");pr.textContent=t;b.innerHTML="";b.appendChild(pr)}
   }catch(e){b.innerHTML='<div class="mute">파일을 못 불러왔어요 ('+esc(String(e.message||e))+'). 1~2분 뒤 다시 눌러 보세요.</div>'}}
@@ -143,11 +151,11 @@ const SPR={
 "research-advisor":["...HH...","..HHHH..",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
 "results-analyst":["........","..HHHH..",".HSSSSH.",".GEGGEG.",".SSSSSS.","..SMMS..","..BBBB.R",".BBBBBRR"],
 "paper-writer":[".HHHHHH.","HHHHHHHH",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB.T",".BBBBBBT"]};
-const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f"};
+const PAL={"code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f","html-publisher":"#1f9fb0"};
 function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c"};
  let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
-const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["results-analyst","결과 분석","비교·그림·해석"],["paper-writer","논문 초안","원고 쓰기"]];
+const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["research-advisor","문헌 검증","선행 연구와 비교"],["results-analyst","결과 분석","비교·그림·해석"],["paper-writer","논문 초안","원고 쓰기"],["html-publisher","노트 HTML","노트를 보기 좋게"]];
 function team(ag,now){
   return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.role===id||a.agent===id);
     const st=!r?"idle":r.state;
