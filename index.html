@@ -116,7 +116,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 <main>
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
 
-  <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 끝남 · ❌ 실패 — 에이전트에게 맡긴 일과 컴퓨터 계산</div><div id="todo" class="list"></div></section>
+  <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
   <section class="card"><h2>에이전트 10명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록 (3개, 전체는 Mac 의 work_log.txt)</div><div id="agents" class="list"></div></section>
@@ -197,11 +197,11 @@ function todoHTML(d,now){
   for(const j of d.job_history||[])items.push({who:"컴퓨터 계산",desc:j.desc,start:j.start,end:j.end,state:j.state});
   items.sort((x,y)=>(x.state==="running")-(y.state==="running")||0);
   const run=items.filter(i=>i.state==="running").sort((a,b)=>b.start-a.start);
-  const rest=items.filter(i=>i.state!=="running").sort((a,b)=>(b.end||b.start)-(a.end||a.start)).slice(0,Math.max(3,8-run.length));
+  const rest=items.filter(i=>i.state!=="running"&&now-(i.end||i.start)<=300).sort((a,b)=>(b.end||b.start)-(a.end||a.start));   // 끝난 일은 5분 안 것만
   const IC={running:"⏳",done:"✅",failed:"❌",unknown:"❔"};
   const L=[...run,...rest].map(i=>{const st=i.state==="running"?`하는 중 · ${dur(now-i.start)}째`:i.state==="done"?`끝남 · ${ago(i.end||i.start,now)}${i.end?` (${dur(i.end-i.start)} 걸림)`:""}`:i.state==="failed"?`실패 · ${ago(i.end||i.start,now)}`:"확인 안 됨";
     return `<div class="todo ${i.state}"><div class="ic">${IC[i.state]||"•"}</div><div><div class="w">${esc(i.who)}</div><div class="d">${esc(i.desc||"(설명 없음)")}</div><div class="mute" style="font-size:13px">${st}</div></div></div>`});
-  return L.join("")||`<div class="empty">맡긴 일 없음</div>`}
+  return L.join("")||`<div class="empty">지금 하는 일 없음 (최근 5분 안에 끝난 일도 없음)</div>`}
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -245,7 +245,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="29";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="30";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
