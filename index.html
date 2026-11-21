@@ -60,7 +60,11 @@ h1{font-size:22px;margin:0}
 .faces .f.on{opacity:1;color:var(--ink)}.faces .f.on svg{outline:2px solid var(--run);border-radius:4px}
 .faces svg{width:30px;height:30px}
 .faces .f{position:relative}
-.faces .f.on svg{animation:bob .5s ease-in-out infinite alternate,wig 1.6s ease-in-out infinite}
+.faces .f.on svg{animation:run 1.2s ease-in-out infinite,hop .2s ease-in-out infinite alternate}
+@keyframes run{0%{translate:-6px 0;scale:1 1}45%{translate:6px 0;scale:1 1}50%{translate:6px 0;scale:-1 1}95%{translate:-6px 0;scale:-1 1}100%{translate:-6px 0;scale:1 1}}
+@keyframes hop{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-3px) rotate(4deg)}}
+.faces .f.on::before{content:"💨";position:absolute;bottom:22px;left:0;font-size:9px;animation:dust 1.2s steps(1) infinite}
+@keyframes dust{0%{left:0;opacity:.9}45%{left:0;opacity:0}50%{left:auto;right:0;opacity:.9}95%{opacity:0}}
 @keyframes bob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
 @keyframes wig{0%,100%{rotate:0deg}25%{rotate:-6deg}75%{rotate:6deg}}
 .faces .f.on::after{content:"✨";position:absolute;top:10px;right:4px;font-size:10px;animation:spark 1s steps(2) infinite}
@@ -320,7 +324,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="47";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="48";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
