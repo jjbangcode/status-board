@@ -86,7 +86,7 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 .stat .v .mute{font-family:inherit;font-size:9px}
 #rf{font-family:"Press Start 2P",monospace!important;font-size:10px!important;border-radius:0!important;border:0!important;background:var(--stone)!important;color:#22201c!important;box-shadow:inset 2px 2px 0 #eee,inset -2px -2px 0 #777,0 0 0 2px #2a2620;padding:8px 10px!important;cursor:pointer}
 .item{border-top:2px dashed rgba(0,0,0,.18)}
-.nlink{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.nlink{display:block;color:inherit;text-decoration:underline;text-underline-offset:3px}
 a.fbtn{text-decoration:none;display:inline-block}
 .mq{flex:1;overflow:hidden;white-space:nowrap;min-width:0}
 .mq>span{display:inline-block;padding-right:4px}
@@ -217,7 +217,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="21";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="22";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
