@@ -11,12 +11,14 @@
   const home="./?v="+Date.now()+"#"+b;document.getElementById("back").href=home;
   const raw=k=>"https://gist.githubusercontent.com/jjbangcode/"+g.replace(/[^0-9a-f]/g,"")+"/raw/"+encodeURIComponent(k)+"?t="+Date.now();
   try{
-    const r=await fetch(raw(key));if(!r.ok)throw new Error(r.status);
+    // Mac 파일 이름의 한글은 자모가 풀린 형태(NFD) — 휴대폰이 주소를 합친 형태(NFC)로 바꿔도 찾도록 둘 다 시도
+    const get=async k=>{for(const v of [k,k.normalize("NFD"),k.normalize("NFC")]){const q=await fetch(raw(v));if(q.ok)return q}return null};
+    const r=await get(key);if(!r)throw new Error("파일 없음");
     const doc=new DOMParser().parseFromString(await r.text(),"text/html");
     doc.querySelectorAll("script").forEach(x=>x.remove());
     await Promise.all([...doc.querySelectorAll("img[data-src]")].map(async im=>{try{
-      const q=await fetch(raw(im.dataset.src.replace(/\//g,"__")+".b64"));
-      if(q.ok)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
+      const q=await get(im.dataset.src.replace(/\//g,"__")+".b64");
+      if(q)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
     const bar=doc.createElement("div");   // 위에 늘 보이는 '대시보드로' 줄
     bar.innerHTML='<a href="'+home+'" style="display:inline-block;font:600 15px -apple-system,sans-serif;padding:8px 14px;border:2px solid #22201c;background:#e9edf3;color:#1d2330;text-decoration:none">← 대시보드로</a>';
     bar.style.cssText="position:sticky;top:0;z-index:9;padding:10px 16px;background:rgba(251,250,247,.95);border-bottom:1px solid #dfe2e7";
