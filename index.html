@@ -133,8 +133,8 @@ a.fbtn{text-decoration:none;display:inline-block}
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
-  <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">4_논문초안/figures 의 확정 그림 — 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
-  <section class="card"><h2>토론 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">결론·할 일 요약 (✅ 끝 · ⏳ 하는 중 · ⬜ 아직) — "자세히 보기" 를 누르면 전체가 열려요</div><div id="debates" class="list"></div></section>
+  <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
+  <section class="card"><h2>토론 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">제목을 누르면 결론·할 일·자세한 내용이 열려요</div><div id="debates" class="list"></div></section>
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
   <section class="card"><h2>에이전트 12명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
@@ -215,7 +215,7 @@ const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
-function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${noteLink((n.files||[])[0],"📝 "+n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
+function notesHTML(ns){return (ns||[]).map(n=>`<div class="note" style="padding:8px 0"><div class="t">${noteLink((n.files||[])[0],"📝 "+n.title)}</div><div class="mute" style="font-size:12px">${esc(n.date)}</div></div>`).join("")||`<div class="empty">노트 없음</div>`}
 
 function todoHTML(d,now){
   const items=[];
@@ -231,15 +231,9 @@ function todoHTML(d,now){
   return L.join("")||`<div class="empty">지금 하는 일 없음 (최근 5분 안에 끝난 일도 없음)</div>`}
 
 function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file);
-  return `<div class="note"><div class="t">🖼 ${esc(p.name)}</div><div class="s">${esc(p.title)}</div><div class="mute" style="font-size:12px">업데이트 ${ago(p.mtime,now)}${p.pdf?" · PDF 있음 (Mac)":""}</div>
-  <div class="files"><button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">🖼 그림 보기${on?"":" (올리는 중)"}</button></div>
-  ${p.legend?`<details style="margin-top:6px"><summary class="mute" style="font-size:13px">legend (영어) 보기</summary><pre style="white-space:pre-wrap;font-size:12px">${esc(p.legend)}</pre></details>`:""}</div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
+  return `<div class="note" style="padding:8px 0"><div class="t">🖼 ${esc(p.name)} <button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">${on?"그림 보기":"올리는 중"}</button></div><div class="mute" style="font-size:12px">${ago(p.mtime,now)}</div></div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
 
-function debatesHTML(ds,now){return (ds||[]).map(d=>{const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join("");
-  const td=d.todo&&d.todo.length?`<div class="w" style="margin-top:6px">할 일</div><ul style="list-style:none;padding-left:4px">${li(d.todo)}</ul>`:"";
-  const cc=d.concl&&d.concl.length?`<details style="margin-top:4px"><summary class="w">결론 요약</summary><ul>${li(d.concl)}</ul></details>`:"";
-  const top=`<div class="s" style="font-size:14px;color:var(--ink)">${esc(d.summary)}</div>${td}${cc}`;
-  return `<div class="note"><div class="t">💬 ${esc(d.topic.replace(/^\d{4}-\d\d-\d\d_/,""))}</div>${top}<div style="margin-top:6px">${d.file?noteLink(d.file,"자세히 보기 →"):""}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`}).join("")||`<div class="empty">아직 토론 없음</div>`}
+function debatesHTML(ds,now){return (ds||[]).map(d=>`<div class="note" style="padding:8px 0"><div class="t">${d.file?noteLink(d.file,"💬 "+d.topic.replace(/^\d{4}-\d\d-\d\d_/,"").replace(/_/g," ")):esc("💬 "+d.topic)}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`).join("")||`<div class="empty">아직 토론 없음</div>`}
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -286,7 +280,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="40";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="41";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
