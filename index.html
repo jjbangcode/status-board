@@ -47,6 +47,10 @@ h1{font-size:22px;margin:0}
 .nw svg{width:44px;height:44px}
 .nw .n{font-size:15px;font-weight:700}.nw .d{font-size:13px;word-break:break-all}.nw .t{font-size:12px;color:var(--mute)}
 .faces{display:flex;flex-wrap:wrap;gap:6px}
+.rv{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px dashed rgba(0,0,0,.18)}
+.rv:first-child{border-top:0}.rv.ok{opacity:.5}
+.rv .t{font-size:15px;font-weight:700}.rv .m{font-size:12px;color:var(--mute)}
+.rvb{font:inherit;font-size:20px;background:none;border:0;cursor:pointer;padding:2px 6px}
 .card>h2{cursor:pointer;user-select:none;position:relative;padding-right:26px}
 .card>h2::after{content:"▾";position:absolute;right:0;top:0;font-size:14px}
 .card.fold>h2::after{content:"▸"}
@@ -131,6 +135,8 @@ a.fbtn{text-decoration:none;display:inline-block}
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
 
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
+
+  <section class="card"><h2 id="revh">내가 확인할 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⬜ 아직 안 봄 · 🔄 본 뒤에 바뀜 · ✅ 확인함 — 오른쪽 네모를 누르면 표시돼요 (이 휴대폰에 저장)</div><div id="review" class="list"></div></section>
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
@@ -234,6 +240,20 @@ function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file);
   return `<div class="note" style="padding:8px 0"><div class="t">🖼 ${esc(p.name)} <button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">${on?"그림 보기":"올리는 중"}</button></div><div class="mute" style="font-size:12px">${ago(p.mtime,now)}</div></div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
 
 function debatesHTML(ds,now){return (ds||[]).map(d=>`<div class="note" style="padding:8px 0"><div class="t">${d.file?noteLink(d.file,"💬 "+d.topic.replace(/^\d{4}-\d\d-\d\d_/,"").replace(/_/g," ")):esc("💬 "+d.topic)}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`).join("")||`<div class="empty">아직 토론 없음</div>`}
+function reviewItems(d){const it=[];
+  for(const n of d.notes||[])if((n.files||[])[0])it.push({k:"n:"+n.file,f:n.files[0],kind:"📝 노트",title:n.title,mt:n.mtime||0,fig:false});
+  for(const x of d.debates||[])if(x.file)it.push({k:"d:"+x.topic,f:x.file,kind:"💬 토론",title:x.topic.replace(/^\d{4}-\d\d-\d\d_/,"").replace(/_/g," "),mt:x.mtime||0,fig:false});
+  for(const p of d.paper_figs||[])it.push({k:"p:"+p.file,f:p.file,kind:"🖼 논문 그림",title:p.name,mt:p.mtime||0,fig:true});
+  return it}
+function rvGet(){try{return JSON.parse(localStorage.getItem("seen_v1")||"{}")}catch(_){return {}}}
+function rvSet(o){try{localStorage.setItem("seen_v1",JSON.stringify(o))}catch(_){}}
+function reviewHTML(d,now){const S=rvGet();const it=reviewItems(d).map(i=>{const s=S[i.k];i.st=!s?"new":(i.mt>s+1?"chg":"ok");return i});
+  const ord={new:0,chg:1,ok:2};it.sort((a,b)=>ord[a.st]-ord[b.st]||b.mt-a.mt);
+  const n=it.filter(i=>i.st!=="ok").length;const h=document.getElementById("revh");if(h)h.textContent="내가 확인할 결과"+(n?` (${n}개 남음)`:" (다 봤음)");
+  const IC={new:"⬜",chg:"🔄",ok:"✅"};
+  return it.map(i=>`<div class="rv ${i.st}"><div><div class="t">${i.fig?`<span class="nopen nlink" style="cursor:pointer;text-decoration:underline" data-f="${esc(i.f)}">${esc(i.title)}</span>`:noteLink(i.f,i.title)}</div><div class="m">${i.kind} · ${ago(i.mt,now)} 업데이트${i.st==="chg"?" · 본 뒤에 바뀜":""}</div></div><button class="rvb" data-k="${esc(i.k)}" data-mt="${i.mt}">${IC[i.st]}</button></div>`).join("")||`<div class="empty">결과 없음</div>`}
+document.addEventListener("click",e=>{const b=e.target.closest(".rvb");if(!b)return;const S=rvGet();const k=b.dataset.k;
+  if(b.textContent==="✅")delete S[k];else S[k]=+b.dataset.mt;rvSet(S);if(window.__d)document.getElementById("review").innerHTML=reviewHTML(window.__d,window.__d.now)});
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -242,6 +262,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
   document.getElementById("faces").innerHTML=facesHTML(ag);
+  document.getElementById("review").innerHTML=reviewHTML(d,now);
   document.getElementById("todo").innerHTML=todoHTML(d,now);
   document.getElementById("pfigs").innerHTML=pfigsHTML(d.paper_figs,now);
   document.getElementById("debates").innerHTML=debatesHTML(d.debates,now);
@@ -280,7 +301,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="41";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="42";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
