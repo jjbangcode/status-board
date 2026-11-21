@@ -126,10 +126,10 @@ a.fbtn{text-decoration:none;display:inline-block}
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
-function noteHref(f){return "note.html#"+FG+"/"+encodeURIComponent(f.replace(/\//g,"__"))}
-function noteLink(f,label){if(!f)return esc(label);return UP.has(f)?`<a class="nlink" href="${noteHref(f)}" target="_blank" rel="noopener">${esc(label)} <span style="font-size:12px">↗ 열기</span></a>`:`${esc(label)} <span class="mute" style="font-size:12px">(올리는 중)</span>`}
+function noteHref(f){return "note.html#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
+function noteLink(f,label){if(!f)return esc(label);return UP.has(f)?`<a class="nlink" href="${noteHref(f)}">${esc(label)} <span style="font-size:12px">↗ 열기</span></a>`:`${esc(label)} <span class="mute" style="font-size:12px">(올리는 중)</span>`}
 function filesHTML(fs){if(!fs||!fs.length)return "";return `<div class="files">${fs.map(f=>{const on=UP.has(f);const nm=f.split("/").pop();
-  if(on&&f.endsWith(".html"))return `<a class="fbtn" href="${noteHref(f)}" target="_blank" rel="noopener">${ICON(f)} ${esc(nm)} ↗</a>`;
+  if(on&&f.endsWith(".html"))return `<a class="fbtn" href="${noteHref(f)}">${ICON(f)} ${esc(nm)} ↗</a>`;
   return `<button class="fbtn${on?"":" off"}" data-f="${esc(f)}" title="${esc(f)}">${ICON(f)} ${esc(nm)}${on?"":" (올리는 중)"}</button>`}).join("")}</div>`}
 function csvTable(t){const rows=t.trim().split(/\r?\n/).slice(0,300).map(l=>l.split(","));
   return `<div style="overflow:auto"><table>${rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>`}
@@ -217,7 +217,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="20";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="21";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);

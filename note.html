@@ -3,11 +3,12 @@
 <title>실험 노트</title>
 <style>body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;background:#fbfaf7;color:#1d2330;padding:24px 16px}
 @media (prefers-color-scheme:dark){body{background:#16191e;color:#e6e9ee}}</style></head>
-<body><p id="msg">노트를 불러오는 중…</p>
+<body><p id="msg">노트를 불러오는 중…</p><p><a id="back" href="./">← 대시보드로</a></p>
 <script>
 // 주소: note.html#<파일 gist id>/<파일 이름(인코딩)>  — # 뒤는 서버로 안 감
 (async()=>{
-  const [g,...rest]=location.hash.slice(1).split("/");const key=decodeURIComponent(rest.join("/"));
+  const P=new URLSearchParams(location.hash.slice(1));const g=P.get("g")||"",key=P.get("f")||"",b=(P.get("b")||"").replace(/[^0-9a-f]/g,"");
+  const home="./?v="+Date.now()+"#"+b;document.getElementById("back").href=home;
   const raw=k=>"https://gist.githubusercontent.com/jjbangcode/"+g.replace(/[^0-9a-f]/g,"")+"/raw/"+encodeURIComponent(k)+"?t="+Date.now();
   try{
     const r=await fetch(raw(key));if(!r.ok)throw new Error(r.status);
@@ -16,6 +17,10 @@
     await Promise.all([...doc.querySelectorAll("img[data-src]")].map(async im=>{try{
       const q=await fetch(raw(im.dataset.src.replace(/\//g,"__")+".b64"));
       if(q.ok)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
+    const bar=doc.createElement("div");   // 위에 늘 보이는 '대시보드로' 줄
+    bar.innerHTML='<a href="'+home+'" style="display:inline-block;font:600 15px -apple-system,sans-serif;padding:8px 14px;border:2px solid #22201c;background:#e9edf3;color:#1d2330;text-decoration:none">← 대시보드로</a>';
+    bar.style.cssText="position:sticky;top:0;z-index:9;padding:10px 16px;background:rgba(251,250,247,.95);border-bottom:1px solid #dfe2e7";
+    doc.body.insertBefore(bar,doc.body.firstChild);
     document.open();document.write("<!doctype html>"+doc.documentElement.outerHTML);document.close();
   }catch(e){document.getElementById("msg").textContent="노트를 못 불러왔어요 ("+(e.message||e)+"). 1~2분 뒤 다시 열어 보세요."}
 })();
