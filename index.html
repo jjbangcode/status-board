@@ -136,7 +136,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
 
-  <section class="card"><h2 id="revh">내가 확인할 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⬜ 아직 안 봄 · 🔄 본 뒤에 바뀜 · ✅ 확인함 — 오른쪽 네모를 누르면 표시돼요 (이 휴대폰에 저장)</div><div id="review" class="list"></div></section>
+  <section class="card"><h2 id="revh">내가 확인할 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⬜ 아직 안 봄 · 🔄 본 뒤에 바뀜 — 오른쪽 네모를 누르면 확인함으로 사라져요 (이 휴대폰에 저장)</div><div id="review" class="list"></div></section>
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
@@ -250,9 +250,10 @@ function rvSet(o){try{localStorage.setItem("seen_v1",JSON.stringify(o))}catch(_)
 function reviewHTML(d,now){const S=rvGet();const it=reviewItems(d).map(i=>{const s=S[i.k];i.st=!s?"new":(i.mt>s+1?"chg":"ok");return i});
   const ord={new:0,chg:1,ok:2};it.sort((a,b)=>ord[a.st]-ord[b.st]||b.mt-a.mt);
   const n=it.filter(i=>i.st!=="ok").length;const h=document.getElementById("revh");if(h)h.textContent="내가 확인할 결과"+(n?` (${n}개 남음)`:" (다 봤음)");
-  const IC={new:"⬜",chg:"🔄",ok:"✅"};
-  return it.map(i=>`<div class="rv ${i.st}"><div><div class="t">${i.fig?`<span class="nopen nlink" style="cursor:pointer;text-decoration:underline" data-f="${esc(i.f)}">${esc(i.title)}</span>`:noteLink(i.f,i.title)}</div><div class="m">${i.kind} · ${ago(i.mt,now)} 업데이트${i.st==="chg"?" · 본 뒤에 바뀜":""}</div></div><button class="rvb" data-k="${esc(i.k)}" data-mt="${i.mt}">${IC[i.st]}</button></div>`).join("")||`<div class="empty">결과 없음</div>`}
-document.addEventListener("click",e=>{const b=e.target.closest(".rvb");if(!b)return;const S=rvGet();const k=b.dataset.k;
+  const IC={new:"⬜",chg:"🔄",ok:"✅"};const nok=it.length-n;const vis=window.__rvAll?it:it.filter(i=>i.st!=="ok");
+  const tail=nok?`<div style="margin-top:6px"><button class="rvall fbtn">${window.__rvAll?"확인한 것 숨기기":"확인한 것 "+nok+"개 다시 보기"}</button></div>`:"";
+  return vis.map(i=>`<div class="rv ${i.st}"><div><div class="t">${i.fig?`<span class="nopen nlink" style="cursor:pointer;text-decoration:underline" data-f="${esc(i.f)}">${esc(i.title)}</span>`:noteLink(i.f,i.title)}</div><div class="m">${i.kind} · ${ago(i.mt,now)} 업데이트${i.st==="chg"?" · 본 뒤에 바뀜":""}</div></div><button class="rvb" data-k="${esc(i.k)}" data-mt="${i.mt}">${IC[i.st]}</button></div>`).join("")+(vis.length?"":`<div class="empty">다 확인했어요</div>`)+tail}
+document.addEventListener("click",e=>{if(e.target.closest(".rvall")){window.__rvAll=!window.__rvAll;if(window.__d)document.getElementById("review").innerHTML=reviewHTML(window.__d,window.__d.now);return}const b=e.target.closest(".rvb");if(!b)return;const S=rvGet();const k=b.dataset.k;
   if(b.textContent==="✅")delete S[k];else S[k]=+b.dataset.mt;rvSet(S);if(window.__d)document.getElementById("review").innerHTML=reviewHTML(window.__d,window.__d.now)});
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
@@ -301,7 +302,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="42";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="43";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
