@@ -236,7 +236,9 @@ function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file);
   ${p.legend?`<details style="margin-top:6px"><summary class="mute" style="font-size:13px">legend (영어) 보기</summary><pre style="white-space:pre-wrap;font-size:12px">${esc(p.legend)}</pre></details>`:""}</div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
 
 function debatesHTML(ds,now){return (ds||[]).map(d=>{const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join("");
-  const top=(d.concl&&d.concl.length)?`<div class="w" style="margin-top:6px">결론</div><ul>${li(d.concl)}</ul>${d.todo&&d.todo.length?`<div class="w" style="margin-top:6px">할 일</div><ul style="list-style:none;padding-left:4px">${li(d.todo)}</ul>`:""}`:`<div class="s">${esc(d.summary)}</div>`;
+  const td=d.todo&&d.todo.length?`<div class="w" style="margin-top:6px">할 일</div><ul style="list-style:none;padding-left:4px">${li(d.todo)}</ul>`:"";
+  const cc=d.concl&&d.concl.length?`<details style="margin-top:4px"><summary class="w">결론 요약</summary><ul>${li(d.concl)}</ul></details>`:"";
+  const top=`<div class="s" style="font-size:14px;color:var(--ink)">${esc(d.summary)}</div>${td}${cc}`;
   return `<div class="note"><div class="t">💬 ${esc(d.topic.replace(/^\d{4}-\d\d-\d\d_/,""))}</div>${top}<div style="margin-top:6px">${d.file?noteLink(d.file,"자세히 보기 →"):""}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`}).join("")||`<div class="empty">아직 토론 없음</div>`}
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
@@ -284,7 +286,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="39";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="40";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
