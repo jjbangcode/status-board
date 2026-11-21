@@ -118,6 +118,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">4_논문초안/figures 의 확정 그림 — 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
+  <section class="card"><h2>토론 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">전문가 8명 토론 — 누르면 결론이 열려요</div><div id="debates" class="list"></div></section>
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
   <section class="card"><h2>에이전트 12명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
@@ -210,6 +211,8 @@ function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file);
   return `<div class="note"><div class="t">🖼 ${esc(p.name)}</div><div class="s">${esc(p.title)}</div><div class="mute" style="font-size:12px">업데이트 ${ago(p.mtime,now)}${p.pdf?" · PDF 있음 (Mac)":""}</div>
   <div class="files"><button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">🖼 그림 보기${on?"":" (올리는 중)"}</button></div>
   ${p.legend?`<details style="margin-top:6px"><summary class="mute" style="font-size:13px">legend (영어) 보기</summary><pre style="white-space:pre-wrap;font-size:12px">${esc(p.legend)}</pre></details>`:""}</div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
+
+function debatesHTML(ds,now){return (ds||[]).map(d=>`<div class="note"><div class="t">${d.file?noteLink(d.file,"💬 "+d.topic):esc("💬 "+d.topic)}</div><div class="s">${esc(d.summary)}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`).join("")||`<div class="empty">아직 토론 없음</div>`}
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -219,6 +222,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   document.getElementById("team").innerHTML=team(ag,now);
   document.getElementById("todo").innerHTML=todoHTML(d,now);
   document.getElementById("pfigs").innerHTML=pfigsHTML(d.paper_figs,now);
+  document.getElementById("debates").innerHTML=debatesHTML(d.debates,now);
   requestAnimationFrame(()=>document.querySelectorAll(".mq").forEach(m=>{const o=m.firstElementChild.scrollWidth-m.clientWidth;
     m.classList.toggle("go",o>2);if(o>2){m.style.setProperty("--d",-o+"px");m.style.setProperty("--t",Math.max(4,o/12+3)+"s")}}));
   document.getElementById("agents").innerHTML=ag.length?ag.slice(0,3).map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
@@ -254,7 +258,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="35";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="36";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
