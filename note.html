@@ -11,8 +11,8 @@
   const home="./?v="+Date.now()+"#"+b;document.getElementById("back").href=home;
   const raw=k=>"https://gist.githubusercontent.com/jjbangcode/"+g.replace(/[^0-9a-f]/g,"")+"/raw/"+encodeURIComponent(k)+"?t="+Date.now();
   try{
-    // Mac 파일 이름의 한글은 자모가 풀린 형태(NFD) — 휴대폰이 주소를 합친 형태(NFC)로 바꿔도 찾도록 둘 다 시도
-    const get=async k=>{for(const v of [k,k.normalize("NFD"),k.normalize("NFC")]){const q=await fetch(raw(v));if(q.ok)return q}return null};
+    // Mac 한글 파일 이름(NFD)과 휴대폰 주소(NFC)가 달라도 찾도록 NFC 로 맞춤
+    const get=async k=>{const q=await fetch(raw(k.normalize("NFC")));return q.ok?q:null};   // gist 이름은 NFC 로 통일
     const r=await get(key);if(!r)throw new Error("파일 없음");
     const doc=new DOMParser().parseFromString(await r.text(),"text/html");
     doc.querySelectorAll("script").forEach(x=>x.remove());

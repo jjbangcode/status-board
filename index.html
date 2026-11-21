@@ -135,13 +135,13 @@ function csvTable(t){const rows=t.trim().split(/\r?\n/).slice(0,300).map(l=>l.sp
   return `<div style="overflow:auto"><table>${rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>`}
 async function openFile(f){const v=document.getElementById("viewer"),b=document.getElementById("vbody");
   document.getElementById("vname").textContent=f;b.style.padding="";b.innerHTML='<div class="mute">불러오는 중…</div>';v.classList.add("on");
-  const key=f.replace(/\//g,"__")+(f.endsWith(".png")?".b64":"");
+  const key=(f.replace(/\//g,"__")+(f.endsWith(".png")?".b64":"")).normalize("NFC");
   try{const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());
     if(!r.ok)throw new Error(r.status);const t=await r.text();
     if(f.endsWith(".png")){const i=new Image();i.src="data:image/png;base64,"+t.trim();i.alt=f;b.innerHTML="";b.appendChild(i)}
     else if(f.endsWith(".html")){const doc=new DOMParser().parseFromString(t,"text/html");
       await Promise.all([...doc.querySelectorAll("img[data-src]")].map(async im=>{try{
-        const k=im.dataset.src.replace(/\//g,"__")+".b64";
+        const k=(im.dataset.src.replace(/\//g,"__")+".b64").normalize("NFC");
         const q=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(k)+"?t="+Date.now());
         if(q.ok)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
       doc.querySelectorAll("script").forEach(x=>x.remove());
@@ -223,7 +223,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="24";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="25";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
