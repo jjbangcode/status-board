@@ -86,7 +86,8 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 .stat .v .mute{font-family:inherit;font-size:9px}
 #rf{font-family:"Press Start 2P",monospace!important;font-size:10px!important;border-radius:0!important;border:0!important;background:var(--stone)!important;color:#22201c!important;box-shadow:inset 2px 2px 0 #eee,inset -2px -2px 0 #777,0 0 0 2px #2a2620;padding:8px 10px!important;cursor:pointer}
 .item{border-top:2px dashed rgba(0,0,0,.18)}
-.nopen{cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.nlink{color:inherit;text-decoration:underline;text-underline-offset:3px}
+a.fbtn{text-decoration:none;display:inline-block}
 .mq{flex:1;overflow:hidden;white-space:nowrap;min-width:0}
 .mq>span{display:inline-block;padding-right:4px}
 .mq.go>span{animation:mq var(--t,6s) linear infinite}
@@ -125,7 +126,10 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
+function noteHref(f){return "note.html#"+FG+"/"+encodeURIComponent(f.replace(/\//g,"__"))}
+function noteLink(f,label){if(!f)return esc(label);return UP.has(f)?`<a class="nlink" href="${noteHref(f)}" target="_blank" rel="noopener">${esc(label)} <span style="font-size:12px">↗ 열기</span></a>`:`${esc(label)} <span class="mute" style="font-size:12px">(올리는 중)</span>`}
 function filesHTML(fs){if(!fs||!fs.length)return "";return `<div class="files">${fs.map(f=>{const on=UP.has(f);const nm=f.split("/").pop();
+  if(on&&f.endsWith(".html"))return `<a class="fbtn" href="${noteHref(f)}" target="_blank" rel="noopener">${ICON(f)} ${esc(nm)} ↗</a>`;
   return `<button class="fbtn${on?"":" off"}" data-f="${esc(f)}" title="${esc(f)}">${ICON(f)} ${esc(nm)}${on?"":" (올리는 중)"}</button>`}).join("")}</div>`}
 function csvTable(t){const rows=t.trim().split(/\r?\n/).slice(0,300).map(l=>l.split(","));
   return `<div style="overflow:auto"><table>${rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>`}
@@ -173,7 +177,7 @@ const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
-function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t nopen" data-f="${esc((n.files||[])[0]||"")}">📝 ${esc(n.title)} <span class="mute" style="font-size:12px">▶ 열기</span></div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
+function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${noteLink((n.files||[])[0],"📝 "+n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
 function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -213,12 +217,12 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="19";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="20";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
-document.getElementById("rf").onclick=async e=>{const b=e.currentTarget;b.disabled=true;b.textContent="불러오는 중…";
-  await tick();b.textContent="새로고침 ✓";setTimeout(()=>{b.textContent="새로고침";b.disabled=false},1500)};
+document.getElementById("rf").onclick=e=>{e.currentTarget.textContent="불러오는 중…";   // 화면 자체를 새로 받음 (옛 화면이 남지 않게)
+  location.replace(location.pathname+"?v="+Date.now()+location.hash)};
 </script>
 </body>
 </html>
