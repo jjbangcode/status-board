@@ -120,7 +120,7 @@ a.fbtn{text-decoration:none;display:inline-block}
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">4_논문초안/figures 의 확정 그림 — 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
   <section class="card"><h2>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
 
-  <section class="card"><h2>에이전트 11명</h2><div id="team" class="team"></div><div class="hist mute" style="font-weight:600">최근 일 기록 (3개, 전체는 Mac 의 work_log.txt)</div><div id="agents" class="list"></div></section>
+  <section class="card"><h2>에이전트 11명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
 
@@ -253,7 +253,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="33";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="34";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
