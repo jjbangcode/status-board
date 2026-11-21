@@ -126,7 +126,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
-function noteHref(f){return "note.html#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
+function noteHref(f){return "note.html?v="+VER+"#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
 function noteLink(f,label){if(!f)return esc(label);return UP.has(f)?`<a class="nlink" href="${noteHref(f)}">${esc(label)} <span style="font-size:12px">↗ 열기</span></a>`:`${esc(label)} <span class="mute" style="font-size:12px">(올리는 중)</span>`}
 function filesHTML(fs){if(!fs||!fs.length)return "";return `<div class="files">${fs.map(f=>{const on=UP.has(f);const nm=f.split("/").pop();
   if(on&&f.endsWith(".html"))return `<a class="fbtn" href="${noteHref(f)}">${ICON(f)} ${esc(nm)} ↗</a>`;
@@ -168,7 +168,10 @@ function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
 const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["html-publisher","노트 HTML","노트를 보기 좋게"]];
 function team(ag,now){
+  const G=(window.__d&&window.__d.guard)||{state:"off"};
   return TEAM.map(([id,nm,role])=>{const r=ag.find(a=>a.role===id||a.agent===id);
+    if(id==="compute-manager"){const on=G.state!=="off";const t=on?(G.state==="ok"?"실시간 감시 중 · 안전":G.state==="paused"?"학습 일시정지함":"실시간 감시 중 · 주의"):"감시 꺼짐";
+      return `<div class="ag ${on?"running":"idle"}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${on?"running":""}"></span><span class="mq"><span>${t}</span></span></div><div class="what">20초마다 부하·메모리·발열 확인${G.load!=null?" · 부하 "+G.load+" · 메모리 여유 "+G.mem_free+"%":""}</div></div>`}
     const st=!r?"idle":r.state;
     const lab=!r?"대기 (아직 일 안 함)":st==="running"?"일하는 중 · "+dur(now-r.start)+"째":st==="done"?"대기 · "+ago(r.end,now)+" 끝남":st==="failed"?"실패 · "+ago(r.end,now):"확인 안 됨";
     return `<div class="ag ${st}">${sprite(id)}<div class="nm">${nm}</div><div class="role">${role}</div><div class="st"><span class="dot ${st==="idle"?"":st==="done"?"":st}"></span><span class="mq"><span>${lab}</span></span></div>${r&&st==="running"?`<div class="what">${esc(r.desc)}</div>`:""}</div>`}).join("");
@@ -178,7 +181,7 @@ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
 function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${noteLink((n.files||[])[0],"📝 "+n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
-function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
+function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
   const busy=o.state==="busy";
@@ -220,7 +223,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="23";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="24";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
