@@ -59,6 +59,17 @@ h1{font-size:22px;margin:0}
 .faces .f{display:flex;flex-direction:column;align-items:center;width:52px;font-size:10px;color:var(--mute);opacity:.45}
 .faces .f.on{opacity:1;color:var(--ink)}.faces .f.on svg{outline:2px solid var(--run);border-radius:4px}
 .faces svg{width:30px;height:30px}
+.faces .f{position:relative}
+.faces .f.on svg{animation:bob .5s ease-in-out infinite alternate,wig 1.6s ease-in-out infinite}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+@keyframes wig{0%,100%{rotate:0deg}25%{rotate:-6deg}75%{rotate:6deg}}
+.faces .f.on::after{content:"✨";position:absolute;top:10px;right:4px;font-size:10px;animation:spark 1s steps(2) infinite}
+@keyframes spark{50%{opacity:0}}
+.faces .f:not(.on) svg{filter:grayscale(.6) brightness(.95);transform:rotate(-8deg) translateY(2px)}
+.faces .f:not(.on)::after{content:"z";position:absolute;top:8px;right:6px;font-size:10px;font-weight:700;color:var(--mute);animation:zz 2.4s linear infinite}
+@keyframes zz{0%{transform:translate(0,4px) scale(.7);opacity:0}30%{opacity:1}100%{transform:translate(8px,-12px) scale(1.3);opacity:0}}
+.ag.running svg{animation:bob .5s ease-in-out infinite alternate}
+@media (prefers-reduced-motion:reduce){.faces .f svg,.faces .f::after,.ag svg{animation:none!important}}
 .faces .tt{font-size:10px;font-weight:700;color:var(--run);min-height:13px;line-height:13px}
 .ag.idle{opacity:.55}
 .note{padding:12px 0;border-top:2px dashed rgba(0,0,0,.18)}
@@ -308,7 +319,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="45";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="46";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
