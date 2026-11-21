@@ -46,7 +46,12 @@ h1{font-size:22px;margin:0}
 .nw{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;border:2px solid var(--run);border-radius:10px;padding:8px 10px;background:var(--bg)}
 .nw svg{width:44px;height:44px}
 .nw .n{font-size:15px;font-weight:700}.nw .d{font-size:13px;word-break:break-all}.nw .t{font-size:12px;color:var(--mute)}
-.faces{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.faces{display:flex;flex-wrap:wrap;gap:6px}
+.card>h2{cursor:pointer;user-select:none;position:relative;padding-right:26px}
+.card>h2::after{content:"▾";position:absolute;right:0;top:0;font-size:14px}
+.card.fold>h2::after{content:"▸"}
+.card.fold>h2{margin-bottom:0}
+.card.fold>:not(h2){display:none!important}
 .faces .f{display:flex;flex-direction:column;align-items:center;width:52px;font-size:10px;color:var(--mute);opacity:.45}
 .faces .f.on{opacity:1;color:var(--ink)}.faces .f.on svg{outline:2px solid var(--run);border-radius:4px}
 .faces svg{width:30px;height:30px}
@@ -125,7 +130,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 <main>
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
 
-  <section class="card"><h2>지금 일하는 에이전트</h2><div id="nowag" class="now"></div><div id="faces" class="faces"></div></section>
+  <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 하는 중 · ✅ 5분 안에 끝남 · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">4_논문초안/figures 의 확정 그림 — 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
@@ -240,7 +245,6 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   document.getElementById("orch").innerHTML=o.since?`<div class="row"><span class="dot ${busy?"busy":"done"}"></span><span class="big">${busy?"일하는 중":"대기 중"}</span><span class="mute">${ago(o.since,now)}부터</span></div>`:`<span class="empty">아직 기록 없음 (새 세션부터 기록돼요)</span>`;
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
-  document.getElementById("nowag").innerHTML=nowHTML(ag,now);
   document.getElementById("faces").innerHTML=facesHTML(ag);
   document.getElementById("todo").innerHTML=todoHTML(d,now);
   document.getElementById("pfigs").innerHTML=pfigsHTML(d.paper_figs,now);
@@ -280,12 +284,18 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="38";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="39";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
 document.getElementById("rf").onclick=e=>{e.currentTarget.textContent="불러오는 중…";   // 화면 자체를 새로 받음 (옛 화면이 남지 않게)
   location.replace(location.pathname+"?v="+Date.now()+location.hash)};
+</script>
+<script>
+(function(){const K="fold_v1";let F={};try{F=JSON.parse(localStorage.getItem(K)||"{}")}catch(_){}
+ document.querySelectorAll("section.card").forEach(c=>{const h=c.querySelector(":scope>h2");if(!h)return;const k=h.textContent.trim();
+  if(F[k])c.classList.add("fold");
+  h.addEventListener("click",()=>{c.classList.toggle("fold");F[k]=c.classList.contains("fold");try{localStorage.setItem(K,JSON.stringify(F))}catch(_){}})})})();
 </script>
 </body>
 </html>
