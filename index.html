@@ -86,6 +86,19 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 .stat .v .mute{font-family:inherit;font-size:9px}
 #rf{font-family:"Press Start 2P",monospace!important;font-size:10px!important;border-radius:0!important;border:0!important;background:var(--stone)!important;color:#22201c!important;box-shadow:inset 2px 2px 0 #eee,inset -2px -2px 0 #777,0 0 0 2px #2a2620;padding:8px 10px!important;cursor:pointer}
 .item{border-top:2px dashed rgba(0,0,0,.18)}
+.files{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fbtn{font:inherit;font-size:13px;padding:4px 8px;border:2px solid #22201c;background:var(--bar);color:var(--ink);border-radius:0;cursor:pointer;max-width:100%;text-align:left}
+.fbtn.off{opacity:.45;cursor:default;border-style:dashed}
+#viewer{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;padding:max(12px,env(safe-area-inset-top)) 10px 12px}
+#viewer.on{display:flex;flex-direction:column}
+#viewer .bar{display:flex;gap:8px;align-items:center;background:var(--card);padding:8px 10px;border:2px solid #22201c}
+#viewer .bar b{flex:1;font-size:13px;overflow-wrap:anywhere}
+#viewer .bar button{font:inherit;font-size:14px;padding:6px 12px;border:2px solid #22201c;background:var(--bar);color:var(--ink);cursor:pointer}
+#viewer .body{flex:1;overflow:auto;background:var(--card);border:2px solid #22201c;border-top:0;padding:10px}
+#viewer pre{margin:0;white-space:pre-wrap;font:13px/1.5 ui-monospace,Menlo,monospace;word-break:break-word}
+#viewer img{max-width:100%;height:auto;display:block;background:#fff}
+#viewer table{border-collapse:collapse;font-size:12px}
+#viewer td,#viewer th{border:1px solid var(--line);padding:3px 6px;white-space:nowrap}
 </style></head>
 <body>
 <main>
@@ -102,8 +115,26 @@ h1{font-size:16px;line-height:1.6;color:#fff;text-shadow:2px 2px 0 #2a2620;word-
 
   <section class="card"><h2>실험 노트 · 결과 정리</h2><div id="notes" class="list"></div></section>
 </main>
+<div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
+let UP=new Set(),FG="";
+const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
+function filesHTML(fs){if(!fs||!fs.length)return "";return `<div class="files">${fs.map(f=>{const on=UP.has(f);const nm=f.split("/").pop();
+  return `<button class="fbtn${on?"":" off"}" data-f="${esc(f)}" title="${esc(f)}">${ICON(f)} ${esc(nm)}${on?"":" (올리는 중)"}</button>`}).join("")}</div>`}
+function csvTable(t){const rows=t.trim().split(/\r?\n/).slice(0,300).map(l=>l.split(","));
+  return `<div style="overflow:auto"><table>${rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join("")}</tr>`).join("")}</table></div>`}
+async function openFile(f){const v=document.getElementById("viewer"),b=document.getElementById("vbody");
+  document.getElementById("vname").textContent=f;b.innerHTML='<div class="mute">불러오는 중…</div>';v.classList.add("on");
+  const key=f.replace(/\//g,"__")+(f.endsWith(".png")?".b64":"");
+  try{const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());
+    if(!r.ok)throw new Error(r.status);const t=await r.text();
+    if(f.endsWith(".png")){const i=new Image();i.src="data:image/png;base64,"+t.trim();i.alt=f;b.innerHTML="";b.appendChild(i)}
+    else if(f.endsWith(".csv"))b.innerHTML=csvTable(t);
+    else{const pr=document.createElement("pre");pr.textContent=t;b.innerHTML="";b.appendChild(pr)}
+  }catch(e){b.innerHTML='<div class="mute">파일을 못 불러왔어요 ('+esc(String(e.message||e))+'). 1~2분 뒤 다시 눌러 보세요.</div>'}}
+document.addEventListener("click",e=>{const x=e.target.closest(".fbtn");if(x&&!x.classList.contains("off"))openFile(x.dataset.f);
+  if(e.target.id==="vclose"||e.target.id==="viewer")document.getElementById("viewer").classList.remove("on")});
 const SPR={
 "code-writer":["..HHHH..",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
 "code-checker":["..HHHH..",".HHHHHH.",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..","..BBBB..",".BBBBBB."],
@@ -126,15 +157,15 @@ const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
-function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${esc(n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}</div>`).join("")||`<div class="empty">노트 없음</div>`}
-function render(d){
+function notesHTML(ns){return (ns||[]).map(n=>`<div class="note"><div class="t">${esc(n.title)}</div><div class="s">${esc(n.date)}${n.status?" · "+esc(n.status):""}</div>${n.points.length?`<ul>${n.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<div class="mute">요약 없음</div>`}${filesHTML(n.files)}</div>`).join("")||`<div class="empty">노트 없음</div>`}
+function render(d){UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
   const busy=o.state==="busy";
   document.getElementById("orch").innerHTML=o.since?`<div class="row"><span class="dot ${busy?"busy":"done"}"></span><span class="big">${busy?"일하는 중":"대기 중"}</span><span class="mute">${ago(o.since,now)}부터</span></div>`:`<span class="empty">아직 기록 없음 (새 세션부터 기록돼요)</span>`;
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
-  document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div></div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
+  document.getElementById("agents").innerHTML=ag.length?ag.map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
   const js=d.jobs;
   document.getElementById("jobs").innerHTML=js.length?js.map(j=>{const p=j.progress;const pct=p&&p.total?Math.min(100,100*p.done/p.total):null;return `<div class="item"><span class="dot running"></span><div><div class="big" style="font-size:15px">${esc(j.script)}</div>${pct!==null?`<div class="bar"><i style="width:${pct}%"></i></div><div class="mute">${p.done}/${p.total} 실행 · ${esc(p.last)}</div>`:""}<div class="mute">실행 ${esc(j.elapsed)} · worker ${d.shards} 개 · CPU ${d.shard_cpu}%</div></div></div>`}).join(""):`<div class="empty">돌고 있는 학습·분석 없음</div>`;
   const s=d.system||{};const ld=s.load?s.load[0]:null;
