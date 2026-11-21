@@ -205,7 +205,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
    <div class="stat"><div class="mute">CPU 부하 (1분)</div><div class="v ${lcls}">${ld??"–"} <span class="mute">/ ${s.ncpu??"–"}코어</span></div></div>
    <div class="stat"><div class="mute">메모리 여유</div><div class="v ${mcls}">${s.mem_free_pct??"–"}%</div></div>
    <div class="stat"><div class="mute">디스크 여유</div><div class="v ${dcls}">${s.disk_free_gb??"–"} GB</div></div>
-   <div class="stat"><div class="mute">발열 (CPU 속도)</div><div class="v ${tcls}">${s.cpu_speed_limit??"–"}%</div></div>`;
+   <div class="stat"><div class="mute">발열</div><div class="v ${tcls}">${s.cpu_speed_limit==null?"–":s.cpu_speed_limit>=100?"정상":"뜨거움"}</div><div class="mute" style="font-size:12px">${s.cpu_speed_limit==null?"":s.cpu_speed_limit>=100?"열 때문에 느려지지 않음":"열 때문에 속도 "+s.cpu_speed_limit+"%로 제한"}</div></div>`;
   document.getElementById("notes").innerHTML=notesHTML(d.notes);
 }
 const GIST=location.hash.slice(1).replace(/[^0-9a-f]/g,"");
@@ -223,7 +223,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="25";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="26";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
