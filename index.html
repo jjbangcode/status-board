@@ -315,11 +315,13 @@ function inboxHTML(d){const S=ibGet(),DN=ibDone(),ALL=Array.isArray(d.inbox)?d.i
   const row=(x,o)=>`<div class="ib${x.seen?"":" new"}${o?" old":""}" data-n="${esc(x.n)}"><div class="no">#${esc(x.n)}</div><div>
     <div class="t">${IC[x.kind]||"•"} ${esc(x.title)}${x.kind==="질문"||x.status==="답함"?(x.status==="답함"?'<span class="bdg ok">답함 ✓</span>':x.wait?'<span class="bdg">답 기다림</span>':""):""}</div>
     ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}${x.status==="답함"&&x.answer?`<div class="ans">답: ${esc(x.answer)}</div>`:""}
-    ${(x.links||[]).length?`<div class="files">${x.links.map(l=>/\.png$/i.test(l.file||"")?`<button class="fbtn${UP.has(l.file)?"":" off"}" data-f="${esc(l.file)}">🖼 ${esc(l.label||"그림")}</button>`:`<span class="iblink">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join(" ")}</div>`:""}
+    ${(x.links||[]).filter(l=>/\.png$/i.test(l.file||"")&&UP.has(l.file)).slice(0,3).map(l=>`<img class="ibthumb" data-f="${esc(l.file)}" alt="${esc(l.label||"그림")}" style="display:block;width:100%;max-width:640px;margin:6px 0;border:1px solid #ddd;border-radius:6px;min-height:40px;background:#f6f6f6">`).join("")}${(x.links||[]).length?`<div class="files">${x.links.map(l=>/\.png$/i.test(l.file||"")?`<button class="fbtn${UP.has(l.file)?"":" off"}" data-f="${esc(l.file)}">🖼 ${esc(l.label||"그림")}</button>`:`<span class="iblink">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join(" ")}</div>`:""}
     <div class="m">${esc(x.kind)} · ${tm(x.ts)} <button class="ibdone" data-n="${esc(x.n)}" style="float:right;font-size:12px;padding:2px 8px;border:1px solid #999;border-radius:6px;background:#f4f4f4;cursor:pointer">${DN[x.n]?"되살리기":"✓ 처리"}</button></div></div></div>`;
   const tail=`<div class="ibbar">${nn?'<button class="fbtn ibread">모두 읽음</button>':""}${nhid?`<button class="fbtn ibhid">${window.__ibHid?"처리한 항목 숨기기":"처리한 항목 ("+nhid+")"}</button>`:""}${old.length?`<button class="fbtn ibold">${window.__ibAll?"지난 항목 접기":"지난 항목 ("+old.length+")"}</button>`:""}</div>`;
   return (act.map(x=>row(x,0)).join("")||'<div class="empty">새 소식 없음</div>')+(window.__ibAll?old.map(x=>row(x,1)).join(""):"")+tail}
-function ibRedraw(){if(window.__d)document.getElementById("inbox").innerHTML=inboxHTML(window.__d)}
+
+const __thumbCache={};async function loadThumbs(){for(const im of document.querySelectorAll("img.ibthumb:not([src])")){const f=im.dataset.f;try{if(!__thumbCache[f]){const key=(f.replace(/\//g,"__")+".b64").normalize("NFC");const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());__thumbCache[f]="data:image/png;base64,"+(await r.text()).trim()}im.src=__thumbCache[f];im.onclick=()=>openFile(f)}catch(e){im.alt="그림을 불러오지 못함"}}}
+function ibRedraw(){if(window.__d){document.getElementById("inbox").innerHTML=inboxHTML(window.__d);loadThumbs()}}
 document.addEventListener("click",e=>{
   const dn=e.target.closest(".ibdone");if(dn){e.preventDefault();e.stopPropagation();const D=ibDone(),n=dn.dataset.n;if(D[n])delete D[n];else D[n]=1;ibDoneSet(D);const S=ibGet();S[n]=1;ibSet(S);ibRedraw();return}
   if(e.target.closest(".ibhid")){window.__ibHid=!window.__ibHid;ibRedraw();return}
@@ -334,7 +336,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
   document.getElementById("faces").innerHTML=facesHTML(ag);
-  document.getElementById("inbox").innerHTML=inboxHTML(d);
+  document.getElementById("inbox").innerHTML=inboxHTML(d);loadThumbs();
   document.getElementById("review").innerHTML=reviewHTML(d,now);
   document.getElementById("todo").innerHTML=todoHTML(d,now);
   document.getElementById("pfigs").innerHTML=pfigsHTML(d.paper_figs,now);
