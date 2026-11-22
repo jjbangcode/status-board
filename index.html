@@ -139,6 +139,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 .todo.done .d{opacity:.8}
 .files{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .fbtn{font:inherit;font-size:13px;padding:4px 8px;border:2px solid #22201c;background:var(--bar);color:var(--ink);border-radius:0;cursor:pointer;max-width:100%;text-align:left}
+.iblink{display:inline-block;font-size:13px;padding:4px 8px;border:2px solid #22201c;background:var(--bar);margin:2px 4px 2px 0}
 .fbtn.off{opacity:.45;cursor:default;border-style:dashed}
 #viewer{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:50;padding:max(12px,env(safe-area-inset-top)) 10px 12px}
 #viewer.on{display:flex;flex-direction:column}
@@ -312,7 +313,7 @@ function inboxHTML(d){const S=ibGet(),ITEMS=Array.isArray(d.inbox)?d.inbox:[];co
   const row=(x,o)=>`<div class="ib${x.seen?"":" new"}${o?" old":""}" data-n="${esc(x.n)}"><div class="no">#${esc(x.n)}</div><div>
     <div class="t">${IC[x.kind]||"•"} ${esc(x.title)}${x.kind==="질문"||x.status==="답함"?(x.status==="답함"?'<span class="bdg ok">답함 ✓</span>':x.wait?'<span class="bdg">답 기다림</span>':""):""}</div>
     ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}${x.status==="답함"&&x.answer?`<div class="ans">답: ${esc(x.answer)}</div>`:""}
-    ${(x.links||[]).length?`<div class="files">${x.links.map(l=>`<span class="fbtn">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join("")}</div>`:""}
+    ${(x.links||[]).length?`<div class="files">${x.links.map(l=>/\.png$/i.test(l.file||"")?`<button class="fbtn${UP.has(l.file)?"":" off"}" data-f="${esc(l.file)}">🖼 ${esc(l.label||"그림")}</button>`:`<span class="iblink">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join(" ")}</div>`:""}
     <div class="m">${esc(x.kind)} · ${tm(x.ts)}</div></div></div>`;
   const tail=`<div class="ibbar">${nn?'<button class="fbtn ibread">모두 읽음</button>':""}${old.length?`<button class="fbtn ibold">${window.__ibAll?"지난 항목 접기":"지난 항목 ("+old.length+")"}</button>`:""}</div>`;
   return (act.map(x=>row(x,0)).join("")||'<div class="empty">새 소식 없음</div>')+(window.__ibAll?old.map(x=>row(x,1)).join(""):"")+tail}
@@ -369,7 +370,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="53";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="54";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
