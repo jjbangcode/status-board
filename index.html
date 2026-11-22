@@ -150,10 +150,24 @@ a.fbtn{text-decoration:none;display:inline-block}
 #viewer img{max-width:100%;height:auto;display:block;background:#fff}
 #viewer table{border-collapse:collapse;font-size:12px}
 #viewer td,#viewer th{border:1px solid var(--line);padding:3px 6px;white-space:nowrap}
+.ib{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 0;border-top:2px dashed rgba(0,0,0,.18);cursor:pointer}
+.ib:first-child{border-top:0}
+.ib .no{font-family:"Press Start 2P",monospace;font-size:15px;line-height:1.5;min-width:44px}
+.ib .t{font-size:15px;font-weight:500}.ib.new .t{font-weight:800}
+.ib.new .no::after{content:"●";color:var(--bad);font-size:9px;vertical-align:top;margin-left:2px}
+.ib .s{font-size:13px;opacity:.85;margin-top:2px}
+.ib .m{font-size:12px;color:var(--mute);margin-top:2px}
+.ib .ans{font-size:14px;margin-top:4px;padding:4px 8px;background:rgba(0,0,0,.07);border-left:4px solid var(--ok)}
+.ib.old{opacity:.6}
+.bdg{display:inline-block;font-size:12px;font-weight:700;padding:1px 6px;margin-left:4px;color:#fff;background:var(--warn);vertical-align:1px}
+.bdg.ok{background:var(--ok)}
+.ibbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 </style></head>
 <body>
 <main>
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
+
+  <section class="card"><h2>받은 편지함 (Inbox)<span id="ibc" style="margin-left:6px"></span></h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">굵은 글씨 = 안 읽음 (누르면 읽음, 이 휴대폰에 저장) · 답은 채팅에 번호로 ("8번 예")</div><div id="inbox" class="list"></div></section>
 
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
 
@@ -161,7 +175,6 @@ a.fbtn{text-decoration:none;display:inline-block}
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 지금 하는 일만 보여요 (끝난 일은 바로 사라짐) · ❌ 실패</div><div id="todo" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
-  <section class="card"><h2>토론 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">제목을 누르면 결론·할 일·자세한 내용이 열려요</div><div id="debates" class="list"></div></section>
 
 
   <section class="card"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
@@ -176,7 +189,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","review-panel":"심사 패널","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
 function noteHref(f){return "note.html?v="+VER+"#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
@@ -217,8 +230,9 @@ const SPR={
 "codex-reviewer":["HHHHHHHH","H.HHHH.H",".SSSSSS.",".GEGGEG.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
 "session-recorder":["..HHHH..",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","TTBBBB..","TTBBBBBB"],
 "debate-moderator":["H.HHHH.H",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
+"review-panel":["H.HHHH.H",".HHHHHH.",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..",".BBBBBB.","BBBBBBBB"],
 "html-publisher":["HHHHHHHH","..HHHH..",".SSSSSS.",".SESSES.",".SSSSSS.","..SMMS..","..BBBB..","BBBBBBBB"]};
-const PAL={"orchestrator":"#222","code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f","html-publisher":"#1f9fb0","figure-maker":"#c43b8a","note-writer":"#6b8e23","codex-reviewer":"#111111","session-recorder":"#8a6d3b","debate-moderator":"#2e7d6b"};
+const PAL={"orchestrator":"#222","code-writer":"#3b7dd8","code-checker":"#d8a03b","compute-manager":"#d04a3b","research-advisor":"#7a4fc4","paper-writer":"#2f9e6e","results-analyst":"#e07a1f","html-publisher":"#1f9fb0","figure-maker":"#c43b8a","note-writer":"#6b8e23","codex-reviewer":"#111111","session-recorder":"#8a6d3b","debate-moderator":"#2e7d6b","review-panel":"#5a3e8c"};
 function sprite(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"#f0c8a0",E:"#222",G:"#555",M:"#b0604a",B:PAL[id]||"#888",T:"#e8e0c8",R:"#3c9a3c"};
  let r="";p.forEach((row,y)=>[...row].forEach((ch,x)=>{if(c[ch])r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c[ch]}"/>`}));
  return `<svg viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`}
@@ -227,7 +241,7 @@ function runner(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",S:"
  const A=["...BB...","S.BBBB..","..BBBB.S","...BB...","..K..K..",".K....K.","K......K"];
  const Bf=["...BB...","..BBBBS.",".SBBBB..","...BB...","...KK...","...K.K..","..K..K.."];
  return `<svg class="runner" viewBox="0 0 8 15" shape-rendering="crispEdges" aria-hidden="true">${rect(p,0)}<g class="fa">${rect(A,8)}</g><g class="fb">${rect(Bf,8)}</g></svg>`}
-const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["codex-reviewer","Codex 검토","최종 관문·교차 검토"],["session-recorder","기록","인수인계·다른 창 이어 하기"],["debate-moderator","토론","전문가 8명 토론 진행"],["html-publisher","노트 HTML","노트를 보기 좋게"]];
+const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["codex-reviewer","Codex 검토","최종 관문·교차 검토"],["session-recorder","기록","인수인계·다른 창 이어 하기"],["debate-moderator","토론","전문가 8명 토론 진행"],["review-panel","심사 패널","npj 편집자·리뷰어 10명이 새 그림마다 더 할 실험 제안"],["html-publisher","노트 HTML","노트를 보기 좋게"]];
 function nowHTML(ag,now){
   const run=TEAM.map(([id,nm])=>[id,nm,ag.find(a=>(a.role===id||a.agent===id)&&a.state==="running")]).filter(x=>x[2]);
   return run.map(([id,nm,r])=>`<div class="nw">${sprite(id)}<div><div class="n">⏳ ${nm} <span class="t">· ${dur(now-r.start)}째</span></div><div class="d">${esc(r.desc||"")}</div></div></div>`).join("")||`<div class="empty">지금 일하는 에이전트 없음</div>`}
@@ -286,6 +300,27 @@ function reviewHTML(d,now){const S=rvGet();const it=reviewItems(d).map(i=>{const
   return vis.map(i=>`<div class="rv ${i.st}"><div><div class="t">${i.fig?`<span class="nopen nlink" style="cursor:pointer;text-decoration:underline" data-f="${esc(i.f)}">${esc(i.title)}</span>`:noteLink(i.f,i.title)}</div><div class="m">${i.kind} · ${ago(i.mt,now)} 업데이트${i.st==="chg"?" · 본 뒤에 바뀜":""}</div></div><button class="rvb" data-k="${esc(i.k)}" data-mt="${i.mt}">${IC[i.st]}</button></div>`).join("")+(vis.length?"":`<div class="empty">다 확인했어요</div>`)+tail}
 document.addEventListener("click",e=>{if(e.target.closest(".rvall")){window.__rvAll=!window.__rvAll;if(window.__d)document.getElementById("review").innerHTML=reviewHTML(window.__d,window.__d.now);return}const b=e.target.closest(".rvb");if(!b)return;const S=rvGet();const k=b.dataset.k;
   if(b.textContent==="✅")delete S[k];else S[k]=+b.dataset.mt;rvSet(S);if(window.__d)document.getElementById("review").innerHTML=reviewHTML(window.__d,window.__d.now)});
+function ibGet(){try{return JSON.parse(localStorage.getItem("inbox_seen_v1")||"{}")}catch(_){return {}}}
+function ibSet(o){try{localStorage.setItem("inbox_seen_v1",JSON.stringify(o))}catch(_){}}
+function inboxHTML(d){const S=ibGet(),ITEMS=Array.isArray(d.inbox)?d.inbox:[];const IC={"결과":"📊","질문":"❓","알림":"🔔"};
+  const it=ITEMS.map(x=>({...x,seen:!!S[x.n],wait:x.status==="답 기다림"}));
+  const act=it.filter(x=>x.wait||(!x.seen&&x.status!=="답함")),old=it.filter(x=>!act.includes(x));
+  act.sort((a,b)=>b.wait-a.wait||a.seen-b.seen||b.n-a.n);old.sort((a,b)=>b.n-a.n);
+  const nw=it.filter(x=>x.wait).length,nn=it.filter(x=>!x.seen&&x.status!=="답함").length;
+  const c=document.getElementById("ibc");if(c)c.textContent=(nw?`답 기다림 ${nw}`:"")+(nw&&nn?" · ":"")+(nn?`새 ${nn}`:"");
+  const tm=t=>{const z=new Date(t);return isNaN(z)?"":z.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})};
+  const row=(x,o)=>`<div class="ib${x.seen?"":" new"}${o?" old":""}" data-n="${esc(x.n)}"><div class="no">#${esc(x.n)}</div><div>
+    <div class="t">${IC[x.kind]||"•"} ${esc(x.title)}${x.kind==="질문"||x.status==="답함"?(x.status==="답함"?'<span class="bdg ok">답함 ✓</span>':x.wait?'<span class="bdg">답 기다림</span>':""):""}</div>
+    ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}${x.status==="답함"&&x.answer?`<div class="ans">답: ${esc(x.answer)}</div>`:""}
+    ${(x.links||[]).length?`<div class="files">${x.links.map(l=>`<span class="fbtn">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join("")}</div>`:""}
+    <div class="m">${esc(x.kind)} · ${tm(x.ts)}</div></div></div>`;
+  const tail=`<div class="ibbar">${nn?'<button class="fbtn ibread">모두 읽음</button>':""}${old.length?`<button class="fbtn ibold">${window.__ibAll?"지난 항목 접기":"지난 항목 ("+old.length+")"}</button>`:""}</div>`;
+  return (act.map(x=>row(x,0)).join("")||'<div class="empty">새 소식 없음</div>')+(window.__ibAll?old.map(x=>row(x,1)).join(""):"")+tail}
+function ibRedraw(){if(window.__d)document.getElementById("inbox").innerHTML=inboxHTML(window.__d)}
+document.addEventListener("click",e=>{
+  if(e.target.closest(".ibold")){window.__ibAll=!window.__ibAll;ibRedraw();return}
+  if(e.target.closest(".ibread")){const S=ibGet();for(const x of (window.__d&&window.__d.inbox)||[])S[x.n]=1;ibSet(S);ibRedraw();return}
+  const r=e.target.closest(".ib");if(!r)return;const S=ibGet();if(!S[r.dataset.n]){S[r.dataset.n]=1;ibSet(S);if(!e.target.closest("a"))ibRedraw()}});
 function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
@@ -294,10 +329,11 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
   document.getElementById("faces").innerHTML=facesHTML(ag);
+  document.getElementById("inbox").innerHTML=inboxHTML(d);
   document.getElementById("review").innerHTML=reviewHTML(d,now);
   document.getElementById("todo").innerHTML=todoHTML(d,now);
   document.getElementById("pfigs").innerHTML=pfigsHTML(d.paper_figs,now);
-  document.getElementById("debates").innerHTML=debatesHTML(d.debates,now);
+  {const e=document.getElementById("debates");if(e)e.innerHTML=debatesHTML(d.debates,now);}
   requestAnimationFrame(()=>document.querySelectorAll(".mq").forEach(m=>{const o=m.firstElementChild.scrollWidth-m.clientWidth;
     m.classList.toggle("go",o>2);if(o>2){m.style.setProperty("--d",-o+"px");m.style.setProperty("--t",Math.max(4,o/12+3)+"s")}}));
   document.getElementById("agents").innerHTML=ag.length?ag.slice(0,3).map(a=>`<div class="item"><span class="dot ${a.state}"></span><div><div><span class="tag">${esc(NAME[a.agent]||a.agent)}</span> ${esc(a.desc)}</div><div class="mute">${ST[a.state]||a.state} · ${a.end?dur(a.end-a.start)+" 걸림":dur(now-a.start)+"째"} · ${ago(a.start,now)} 시작</div>${filesHTML(a.files)}</div></div>`).join(""):`<div class="empty">아직 맡긴 일 없음</div>`;
@@ -333,7 +369,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="49";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="52";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
