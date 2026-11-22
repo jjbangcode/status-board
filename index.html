@@ -282,8 +282,8 @@ function todoHTML(d,now){
     return `<div class="todo ${i.state}"><div class="ic">${IC[i.state]||"•"}</div><div><div class="w">${esc(i.who)}</div><div class="d">${esc(i.desc||"(설명 없음)")}</div><div class="mute" style="font-size:13px">${st}</div></div></div>`});
   return L.join("")||`<div class="empty">지금 하는 일 없음</div>`}
 
-function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file);
-  return `<div class="note" style="padding:8px 0"><div class="t">🖼 ${esc(p.name)} <button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">${on?"그림 보기":"올리는 중"}</button></div><div class="mute" style="font-size:12px">${ago(p.mtime,now)}</div></div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
+function pfigsHTML(ps,now){return (ps||[]).map(p=>{const on=UP.has(p.file),onf=p.file_full&&UP.has(p.file_full);
+  return `<div class="note" style="padding:8px 0"><div class="t">🖼 ${esc(p.name)} <button class="fbtn${on?"":" off"}" data-f="${esc(p.file)}">${on?"📱 휴대폰판":"올리는 중"}</button> ${p.file_full?`<button class="fullbtn${onf?"":" off"}" data-f="${esc(p.file_full)}" style="font-size:13px;padding:3px 8px;border:1px solid #999;border-radius:6px;background:#fff;cursor:pointer">${onf?"📄 논문 원본 (확대)":"원본 올리는 중"}</button>`:""}</div><div class="mute" style="font-size:12px">${ago(p.mtime,now)}</div></div>`}).join("")||`<div class="empty">최종 그림 없음</div>`}
 
 function debatesHTML(ds,now){return (ds||[]).map(d=>`<div class="note" style="padding:8px 0"><div class="t">${d.file?noteLink(d.file,"💬 "+d.topic.replace(/^\d{4}-\d\d-\d\d_/,"").replace(/_/g," ")):esc("💬 "+d.topic)}</div><div class="mute" style="font-size:12px">${ago(d.mtime,now)}</div></div>`).join("")||`<div class="empty">아직 토론 없음</div>`}
 function reviewItems(d){const it=[];
@@ -388,6 +388,8 @@ document.getElementById("rf").onclick=e=>{e.currentTarget.textContent="불러오
  document.querySelectorAll("section.card").forEach(c=>{const h=c.querySelector(":scope>h2");if(!h)return;const k=h.textContent.trim();
   if(F[k])c.classList.add("fold");
   h.addEventListener("click",()=>{c.classList.toggle("fold");F[k]=c.classList.contains("fold");try{localStorage.setItem(K,JSON.stringify(F))}catch(_){}})})})();
+
+document.addEventListener("click",async e=>{const b=e.target.closest(".fullbtn");if(!b||b.classList.contains("off"))return;e.preventDefault();e.stopPropagation();const f=b.dataset.f;const w=window.open("","_blank");try{const key=(f.replace(/\//g,"__")+".b64").normalize("NFC");const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());const t=(await r.text()).trim();const bin=atob(t);const u=new Uint8Array(bin.length);for(let k=0;k<bin.length;k++)u[k]=bin.charCodeAt(k);const url=URL.createObjectURL(new Blob([u],{type:"image/png"}));if(w){w.document.write('<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=10,user-scalable=yes"><body style="margin:0;background:#fff"><img src="'+url+'" style="width:100%;height:auto">')}else{location.href=url}}catch(err){if(w)w.document.write("그림을 불러오지 못했어요")}});
 </script>
 </body>
 </html>
