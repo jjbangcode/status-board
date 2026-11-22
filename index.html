@@ -316,12 +316,12 @@ function inboxHTML(d){const S=ibGet(),DN=ibDone(),ALL=Array.isArray(d.inbox)?d.i
     <div class="t">${IC[x.kind]||"•"} ${esc(x.title)}${x.kind==="질문"||x.status==="답함"?(x.status==="답함"?'<span class="bdg ok">답함 ✓</span>':x.wait?'<span class="bdg">답 기다림</span>':""):""}</div>
     ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}${x.status==="답함"&&x.answer?`<div class="ans">답: ${esc(x.answer)}</div>`:""}
     ${(x.links||[]).length?`<div class="files">${x.links.map(l=>/\.png$/i.test(l.file||"")?`<button class="fbtn${UP.has(l.file)?"":" off"}" data-f="${esc(l.file)}">🖼 ${esc(l.label||"그림")}</button>`:`<span class="iblink">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join(" ")}</div>`:""}
-    <div class="m">${esc(x.kind)} · ${tm(x.ts)} <button class="fbtn ibdone" data-n="${esc(x.n)}" style="float:right;font-size:12px;padding:2px 8px">${DN[x.n]?"되살리기":"✓ 처리"}</button></div></div></div>`;
+    <div class="m">${esc(x.kind)} · ${tm(x.ts)} <button class="ibdone" data-n="${esc(x.n)}" style="float:right;font-size:12px;padding:2px 8px;border:1px solid #999;border-radius:6px;background:#f4f4f4;cursor:pointer">${DN[x.n]?"되살리기":"✓ 처리"}</button></div></div></div>`;
   const tail=`<div class="ibbar">${nn?'<button class="fbtn ibread">모두 읽음</button>':""}${nhid?`<button class="fbtn ibhid">${window.__ibHid?"처리한 항목 숨기기":"처리한 항목 ("+nhid+")"}</button>`:""}${old.length?`<button class="fbtn ibold">${window.__ibAll?"지난 항목 접기":"지난 항목 ("+old.length+")"}</button>`:""}</div>`;
   return (act.map(x=>row(x,0)).join("")||'<div class="empty">새 소식 없음</div>')+(window.__ibAll?old.map(x=>row(x,1)).join(""):"")+tail}
 function ibRedraw(){if(window.__d)document.getElementById("inbox").innerHTML=inboxHTML(window.__d)}
 document.addEventListener("click",e=>{
-  const dn=e.target.closest(".ibdone");if(dn){const D=ibDone(),n=dn.dataset.n;if(D[n])delete D[n];else D[n]=1;ibDoneSet(D);const S=ibGet();S[n]=1;ibSet(S);ibRedraw();return}
+  const dn=e.target.closest(".ibdone");if(dn){e.preventDefault();e.stopPropagation();const D=ibDone(),n=dn.dataset.n;if(D[n])delete D[n];else D[n]=1;ibDoneSet(D);const S=ibGet();S[n]=1;ibSet(S);ibRedraw();return}
   if(e.target.closest(".ibhid")){window.__ibHid=!window.__ibHid;ibRedraw();return}
   if(e.target.closest(".ibold")){window.__ibAll=!window.__ibAll;ibRedraw();return}
   if(e.target.closest(".ibread")){const S=ibGet();for(const x of (window.__d&&window.__d.inbox)||[])S[x.n]=1;ibSet(S);ibRedraw();return}
