@@ -190,7 +190,7 @@ a.fbtn{text-decoration:none;display:inline-block}
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","review-panel":"심사 패널","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","review-panel":"심사 패널","token-watcher":"토큰 감시","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>f.endsWith(".png")?"🖼":f.endsWith(".md")||f.endsWith(".html")?"📝":f.endsWith(".csv")?"📊":f.endsWith(".py")?"💻":"📄";
 function noteHref(f){return "note.html?v="+VER+"#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
