@@ -166,16 +166,16 @@ a.fbtn{text-decoration:none;display:inline-block}
 </style></head>
 <body>
 <main>
-  <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
+  <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><a id="rvlink" href="review.html" style="font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px;text-decoration:none">리뷰 현황 →</a><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
 
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
   <section class="card"><h2>받은 편지함 (Inbox)<span id="ibc" style="margin-left:6px"></span></h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">굵은 글씨 = 안 읽음 (누르면 읽음, 이 휴대폰에 저장) · 답은 채팅에 번호로 ("8번 예") · 다 본 항목은 "✓ 처리" 로 숨김</div><div id="inbox" class="list"></div></section>
+  <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
 
 
   <section class="card" style="display:none"><h2 id="revh">내가 확인할 결과</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⬜ 아직 안 봄 · 🔄 본 뒤에 바뀜 — 오른쪽 네모를 누르면 확인함으로 사라져요 (이 휴대폰에 저장)</div><div id="review" class="list"></div></section>
 
   <section class="card"><h2>맡긴 일 체크리스트</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">⏳ 지금 하는 일만 보여요 (끝난 일은 바로 사라짐) · ❌ 실패</div><div id="todo" class="list"></div></section>
-  <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
 
 
   <section class="card" style="display:none"><h2>돌고 있는 계산</h2><div id="jobs" class="list"></div></section>
@@ -361,7 +361,7 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
    <div class="stat"><div class="mute">발열</div><div class="v ${tcls}">${s.cpu_speed_limit==null?"–":s.cpu_speed_limit>=100?"정상":"뜨거움"}</div><div class="mute" style="font-size:12px">${s.cpu_speed_limit==null?"":s.cpu_speed_limit>=100?"열 때문에 느려지지 않음":"열 때문에 속도 "+s.cpu_speed_limit+"%로 제한"}</div></div>`;
   document.getElementById("notes").innerHTML=notesHTML(d.notes);
 }
-const GIST=location.hash.slice(1).replace(/[^0-9a-f]/g,"");
+const GIST=location.hash.slice(1).replace(/[^0-9a-f]/g,"");try{document.getElementById("rvlink").href="review.html#"+GIST}catch(e){}
 async function load(){
   try{const r=await fetch("https://api.github.com/gists/"+GIST,{cache:"no-store"});
       if(r.ok){const g=await r.json();return JSON.parse(g.files["status.json"].content)}}catch(e){}
