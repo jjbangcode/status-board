@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리뷰 현황</title>
+<meta name="robots" content="noindex">
+<style>
+/* Layout: left rail of projects, right workspace = pipeline strip (8 agents) over tabbed results. */
+:root{--bg:#f6f7f9;--panel:#fff;--ink:#1d2330;--muted:#555d6b;--line:#e3e6eb;--accent:#2f6fdb;--accent-soft:#e7eefb;
+--ok:#2e8b57;--ok-bg:#e2f3ea;--warn:#a8700f;--warn-bg:#fbf0d9;--bad:#c94343;--bad-bg:#fbe4e4;--idle:#6c7482;--idle-bg:#e9edf3;--run:#2f6fdb;--run-bg:#e7eefb;
+--f-body:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;--f-mono:ui-monospace,Menlo,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#14171c;--panel:#1d2128;--ink:#e8ebf0;--muted:#98a0ae;--line:#2c323b;--accent:#6c9bf0;--accent-soft:#22304a;
+--ok:#5cc08a;--ok-bg:#183024;--warn:#e0b050;--warn-bg:#33290f;--bad:#e27474;--bad-bg:#3a1c1c;--idle:#98a0ae;--idle-bg:#2a3039;--run:#6c9bf0;--run-bg:#22304a;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.25}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100%}
+.rail{background:var(--panel);border-right:1px solid var(--line);padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font-size:16px}
+.brand span{color:var(--muted);font-size:12.5px}
+.rail h3{font-size:12px;letter-spacing:.04em;color:var(--muted);font-weight:600}
+.plist{display:flex;flex-direction:column;gap:6px}
+.pitem{display:flex;flex-direction:column;gap:2px;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:10px;cursor:pointer}
+.pitem:hover{background:var(--bg)}
+.pitem.on{background:var(--accent-soft);border-color:var(--accent)}
+.pitem small{color:var(--muted);font-size:12px}
+.main{padding:24px clamp(16px,3vw,36px);display:flex;flex-direction:column;gap:20px;min-width:0}
+.head{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+.head h1{font-size:24px;font-weight:700}
+.meta{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:13px}
+.meta span{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.pipe{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+.stage{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--idle);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;min-width:0}
+.stage .n{font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.stage b{font-size:13.5px}
+.stage[data-s="완료"]{border-left-color:var(--ok)}
+.stage[data-s="진행"]{border-left-color:var(--run)}
+.stage[data-s="검토필요"]{border-left-color:var(--warn)}
+.pill{display:inline-block;font-size:11.5px;font-weight:600;border-radius:999px;padding:1px 8px;width:max-content}
+.pill[data-s="대기"]{background:var(--idle-bg);color:var(--idle)}
+.pill[data-s="진행"]{background:var(--run-bg);color:var(--run)}
+.pill[data-s="완료"]{background:var(--ok-bg);color:var(--ok)}
+.pill[data-s="검토필요"]{background:var(--warn-bg);color:var(--warn)}
+.sev{font-size:11.5px;font-weight:600;border-radius:4px;padding:1px 6px;white-space:nowrap}
+.sev.high{background:var(--bad-bg);color:var(--bad)} .sev.mid{background:var(--warn-bg);color:var(--warn)} .sev.low{background:var(--ok-bg);color:var(--ok)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;cursor:pointer;color:var(--muted);white-space:nowrap;font-weight:500}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .c{font-family:var(--f-mono);font-size:11.5px;margin-left:4px;color:var(--muted)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel h2{font-size:17px}
+.sum{color:var(--muted);max-width:72ch}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.btn{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;font-size:13px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{background:none;border:0;padding:6px 12px;cursor:pointer;font-size:13px}
+.seg button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:var(--bg);font-size:12.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.no{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);width:56px}
+td.en{min-width:280px} td.ko{min-width:240px}
+td .orig{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--bad);display:block;margin-bottom:4px}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:22px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.empty b{color:var(--ink)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.card .k{font-size:12px;color:var(--muted)}
+.verdict{font-size:20px;font-weight:700}
+.panelists{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.who{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+.who small{display:block;color:var(--muted)}
+.msgs{display:flex;flex-direction:column;gap:10px}
+.msg{display:grid;grid-template-columns:150px 1fr;gap:12px;border-top:1px solid var(--line);padding-top:10px}
+.msg .w{font-size:13px;font-weight:600}
+.msg .w small{display:block;font-weight:400;color:var(--muted);font-family:var(--f-mono);font-size:11.5px}
+.rnd{font-size:12.5px;font-weight:600;color:var(--accent);margin-top:6px}
+.status-line{font-size:12.5px;color:var(--muted)}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:12px 14px;font-size:14px}
+@media (max-width:1100px){.pipe{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:760px){.app{grid-template-columns:1fr}.rail{border-right:0;border-bottom:1px solid var(--line)}.pipe{grid-template-columns:repeat(2,minmax(0,1fr))}.msg{grid-template-columns:1fr}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><b>리뷰 현황</b><span>오케스트레이터 + 에이전트 8개 · 리뷰어 10인</span><a id="back" href="./" style="font-size:13px;margin-top:6px">← 연구 작업 현황</a></div>
+    <div><h3>작업 목록</h3></div>
+    <div class="plist" id="plist"><div class="status-line">불러오는 중…</div></div>
+    <div class="status-line" id="conn"></div>
+  </aside>
+  <main class="main" id="main">
+    <div class="status-line">데이터를 불러오는 중입니다.</div>
+  </main>
+</div>
+<script>
+const AGENTS=[
+  {k:"target",n:"01",t:"타겟 설정"},
+  {k:"search",n:"02",t:"유사 논문 검색"},
+  {k:"verify",n:"03",t:"실험 검증"},
+  {k:"edit",n:"04",t:"문장 교정"},
+  {k:"debate",n:"05",t:"토론 10인"},
+  {k:"analysis",n:"06",t:"내용 분석"},
+  {k:"figures",n:"07",t:"그림·그래프 검정"},
+  {k:"log",n:"08",t:"기록"}
+];
+const TABS=[
+  {k:"overview",t:"개요"},
+  {k:"analysis",t:"해석표"},
+  {k:"edit",t:"문장 교정"},
+  {k:"debate",t:"토론"},
+  {k:"figures",t:"그림 검정"},
+  {k:"verify",t:"실험 검증"},
+  {k:"search",t:"유사 논문"},
+  {k:"log",t:"대화 기록"}
+];
+const STATES=["대기","진행","완료","검토필요"];
+let projects=[], cur=null, tab="overview", editView="full";
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const st=s=>STATES.includes(s)?s:"대기";
+const ag=(p,k)=>(p.agents&&p.agents[k])||{};
+const arr=v=>Array.isArray(v)?v:[];
+function fmtT(t){ if(!t) return ""; try{const d=new Date(t); if(isNaN(d)) return esc(t); return d.toLocaleString("ko-KR",{timeZone:"Asia/Seoul",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});}catch(e){return esc(t)} }
+
+window.addEventListener("hashchange",()=>{readTab();render();});
+const go=k=>{location.hash=location.hash.slice(1).split("&")[0]+"&"+k;};
+
+function renderList(){
+  const el=document.getElementById("plist");
+  if(!projects.length){el.innerHTML='<div class="status-line">아직 작업이 없습니다.</div>';return;}
+  el.innerHTML=projects.map(p=>`<button class="pitem ${cur&&p.id===cur.id?"on":""}" data-id="${esc(p.id)}"><b>${esc(p.title||p.id)}</b><small>${esc(p.kind||"")}${p.updated?" · "+fmtT(p.updated):""}</small></button>`).join("");
+  el.querySelectorAll(".pitem").forEach(b=>b.onclick=()=>{cur=projects.find(p=>p.id===b.dataset.id);render();});
+}
+
+function emptyBox(title,how){return `<div class="empty"><b>${esc(title)}</b><span>${esc(how)}</span></div>`;}
+
+function tsv(rows,cols){return [cols.map(c=>c[1]).join("\t")].concat(rows.map(r=>cols.map(c=>String(r[c[0]]??"").replace(/[\t\n]/g," ")).join("\t"))).join("\n");}
+async function copyText(btn,text){
+  try{await navigator.clipboard.writeText(text);btn.textContent="복사됨";}catch(e){btn.textContent="복사 실패: 표를 직접 선택해 주세요";}
+  setTimeout(()=>btn.textContent=btn.dataset.label,1800);
+}
+
+function viewOverview(p){
+  const a=AGENTS.map(x=>({...x,d:ag(p,x.k)}));
+  const done=a.filter(x=>st(x.d.status)==="완료").length;
+  const need=a.filter(x=>st(x.d.status)==="검토필요");
+  const deb=ag(p,"debate");
+  return `<section class="panel">
+    <h2>진행 요약</h2>
+    <div class="grid2">
+      <div class="card"><span class="k">완료된 에이전트</span><span class="verdict">${done} / 8</span></div>
+      <div class="card"><span class="k">토론 최종 판정</span><span class="verdict">${esc(deb.verdict||"아직 없음")}</span></div>
+      <div class="card"><span class="k">검토가 필요한 단계</span><span>${need.length?need.map(x=>esc(x.t)).join(", "):"없음"}</span></div>
+    </div>
+    ${p.note?`<p class="sum">${esc(p.note)}</p>`:""}
+  </section>
+  <section class="panel"><h2>에이전트별 상태</h2>
+    <div class="tw"><table><thead><tr><th>번호</th><th>에이전트</th><th>상태</th><th>요약</th><th>갱신</th></tr></thead><tbody>
+    ${a.map(x=>`<tr><td class="no">${x.n}</td><td>${esc(x.t)}</td><td><span class="pill" data-s="${st(x.d.status)}">${st(x.d.status)}</span></td><td>${esc(x.d.summary||"")}</td><td class="no" style="width:auto">${fmtT(x.d.updated)}</td></tr>`).join("")}
+    </tbody></table></div></section>`;
+}
+
+function viewAnalysis(p){
+  const d=ag(p,"analysis"), rows=arr(d.rows);
+  if(!rows.length) return `<section class="panel"><h2>해석표</h2>${emptyBox("아직 해석표가 없습니다","채팅에 포스터 PDF나 문장을 올리면 내용 분석 에이전트가 연번, 영어 문장, 한글 문장 형식으로 채웁니다.")}</section>`;
+  return `<section class="panel"><div class="bar"><h2>해석표</h2><button class="btn" id="cpA" data-label="표 복사 (엑셀·워드에 붙여넣기)">표 복사 (엑셀·워드에 붙여넣기)</button></div>
+  ${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+  <div class="tw"><table><thead><tr><th>연번</th><th>영어 문장</th><th>한글 문장</th></tr></thead><tbody>
+  ${rows.map((r,i)=>`<tr><td class="no">${esc(r.no??i+1)}</td><td class="en">${esc(r.en)}</td><td class="ko">${esc(r.ko)}</td></tr>`).join("")}
+  </tbody></table></div></section>`;
+}
+
+function viewEdit(p){
+  const d=ag(p,"edit"), rows=arr(d.rows);
+  if(!rows.length) return `<section class="panel"><h2>문장 교정</h2>${emptyBox("아직 교정 결과가 없습니다","교정 에이전트가 IF 10 이상 의생명 논문의 표현을 근거로 교정한 문장을 이곳에 올립니다.")}</section>`;
+  const full=editView==="full";
+  return `<section class="panel"><div class="bar"><h2>문장 교정</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><div class="seg"><button id="evB" class="${full?"":"on"}">기본 3열</button><button id="evF" class="${full?"on":""}">원문·근거 포함</button></div><button class="btn" id="cpE" data-label="표 복사">표 복사</button></div></div>
+  ${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+  <div class="tw"><table><thead><tr><th>연번</th>${full?"<th>원문 → 교정 영어 문장</th>":"<th>영어 문장</th>"}<th>한글 문장</th>${full?"<th>교정 근거</th>":""}</tr></thead><tbody>
+  ${rows.map((r,i)=>`<tr><td class="no">${esc(r.no??i+1)}</td><td class="en">${full&&r.orig?`<span class="orig">${esc(r.orig)}</span>`:""}${esc(r.en)}</td><td class="ko">${esc(r.ko)}</td>${full?`<td>${esc(r.why||"")}</td>`:""}</tr>`).join("")}
+  </tbody></table></div></section>`;
+}
+
+function viewDebate(p){
+  const d=ag(p,"debate"), panel=arr(d.panel), rounds=arr(d.rounds);
+  const def=[["R1 · 핸들링 에디터","타겟 저널 에디터, 최종 판정"],["R2 · 부편집장","경쟁 고IF 저널 에디터, 범위·새로움"],["R3 · 교수","관련 분야 전문가 (주제)"],["R4 · 교수","관련 분야 전문가 (방법)"],["R5 · 통계 교수","통계·연구 설계"],["R6 · 방법론 연구자","검증·과적합·누수"],["R7 · 임상 교수","임상적 의미·라벨 타당성"],["R8 · 재현성 리뷰어","코드·데이터·보고지침"],["R9 · 연구윤리 위원","IRB·동의·편향"],["R10 · Reviewer 2","반론 전담"]];
+  const pl=panel.length?panel:def.map(x=>({name:x[0],role:x[1]}));
+  let last=null;
+  const msgs=rounds.map(m=>{const head=m.round!==last?`<div class="rnd">${esc(m.round)}</div>`:"";last=m.round;return head+`<div class="msg"><div class="w">${esc(m.speaker)}<small>${esc(m.role||"")}</small></div><div>${esc(m.text)}</div></div>`;}).join("");
+  return `<section class="panel"><h2>토론 위원 10인</h2>
+    ${panel.length?"":'<p class="sum">기본 구성입니다. 포스터 주제가 정해지면 전문가 위원을 그 분야로 바꿉니다.</p>'}
+    <div class="panelists">${pl.map(x=>`<div class="who">${esc(x.name)}<small>${esc(x.role)}</small></div>`).join("")}</div></section>
+  <section class="panel"><div class="bar"><h2>토론 기록</h2>${d.verdict?`<span class="pill" data-s="완료">판정: ${esc(d.verdict)}</span>`:""}</div>
+    ${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+    ${rounds.length?`<div class="msgs">${msgs}</div>`:emptyBox("아직 토론이 열리지 않았습니다","독립 리뷰, 교차 비판, 저자 반박, 투표·합의의 네 라운드가 이곳에 순서대로 기록됩니다.")}
+  </section>`;
+}
+
+function viewFigures(p){
+  const d=ag(p,"figures"), it=arr(d.items);
+  const sv=s=>s==="높음"?"high":s==="중간"?"mid":"low";
+  return `<section class="panel"><h2>그림·그래프 검정</h2>${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+  ${it.length?`<div class="tw"><table><thead><tr><th>그림</th><th>점검 항목</th><th>심각도</th><th>발견 내용</th><th>수정 제안</th></tr></thead><tbody>
+  ${it.map(r=>`<tr><td>${esc(r.figure)}</td><td>${esc(r.check)}</td><td><span class="sev ${sv(r.severity)}">${esc(r.severity||"낮음")}</span></td><td>${esc(r.finding)}</td><td>${esc(r.fix)}</td></tr>`).join("")}
+  </tbody></table></div>`:emptyBox("아직 점검 결과가 없습니다","포스터용 점검 항목: 1.5~2 m 거리 가독성(본문 24pt 이상), 축 라벨·단위, 본문 수치와 그래프 일치, 오차막대 정의, 색각이상 친화 팔레트, 해상도, 시선 흐름.")}</section>`;
+}
+
+function viewVerify(p){
+  const d=ag(p,"verify"), rows=arr(d.rows);
+  const vc=v=>/불일치|오류/.test(v||"")?"high":/확인|주의/.test(v||"")?"mid":"low";
+  return `<section class="panel"><h2>실험 검증</h2>${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+  ${rows.length?`<div class="tw"><table><thead><tr><th>연번</th><th>주장</th><th>보고값</th><th>재계산값</th><th>판정</th></tr></thead><tbody>
+  ${rows.map((r,i)=>`<tr><td class="no">${esc(r.no??i+1)}</td><td>${esc(r.claim)}</td><td class="no" style="width:auto">${esc(r.reported)}</td><td class="no" style="width:auto">${esc(r.recalc)}</td><td><span class="sev ${vc(r.verdict)}">${esc(r.verdict)}</span></td></tr>`).join("")}
+  </tbody></table></div>`:emptyBox("아직 검증 결과가 없습니다","보고된 통계(p값, 신뢰구간, 표본수)의 내부 일관성과 유사 논문 대비 성능 수치를 점검해 이곳에 올립니다.")}</section>`;
+}
+
+function viewSearch(p){
+  const d=ag(p,"search"), ps=arr(d.papers);
+  return `<section class="panel"><h2>유사 논문</h2>${d.summary?`<p class="sum">${esc(d.summary)}</p>`:""}
+  ${ps.length?`<div class="tw"><table><thead><tr><th>연번</th><th>제목</th><th>저널</th><th>연도</th><th>IF</th><th>관련성</th></tr></thead><tbody>
+  ${ps.map((r,i)=>`<tr><td class="no">${i+1}</td><td>${r.doi?`<a href="https://doi.org/${esc(r.doi)}" target="_blank" rel="noopener">${esc(r.title)}</a>`:esc(r.title)}</td><td>${esc(r.journal)}</td><td class="no" style="width:auto">${esc(r.year)}</td><td class="no" style="width:auto">${esc(r.if)}</td><td>${esc(r.note)}</td></tr>`).join("")}
+  </tbody></table></div>`:emptyBox("아직 검색 결과가 없습니다","타겟이 정해지면 PubMed·OpenAlex에서 찾은 IF 10 이상 의생명 저널 논문이 이곳에 정리됩니다.")}</section>`;
+}
+
+function viewLog(p){
+  const lg=arr(p.log).slice().sort((a,b)=>String(b.t).localeCompare(String(a.t)));
+  return `<section class="panel"><h2>대화 기록</h2>
+  ${lg.length?`<div class="tw"><table><thead><tr><th>시각</th><th>보낸 쪽</th><th>받는 쪽</th><th>내용</th></tr></thead><tbody>
+  ${lg.map(r=>`<tr><td class="no" style="width:auto;white-space:nowrap">${fmtT(r.t)}</td><td>${esc(r.from)}</td><td>${esc(r.to)}</td><td>${esc(r.text)}</td></tr>`).join("")}
+  </tbody></table></div>`:emptyBox("기록이 없습니다","사용자와 오케스트레이터, 각 에이전트가 주고받은 내용이 시간순으로 쌓입니다.")}</section>`;
+}
+
+const VIEWS={overview:viewOverview,analysis:viewAnalysis,edit:viewEdit,debate:viewDebate,figures:viewFigures,verify:viewVerify,search:viewSearch,log:viewLog};
+const counts=p=>({analysis:arr(ag(p,"analysis").rows).length,edit:arr(ag(p,"edit").rows).length,debate:arr(ag(p,"debate").rounds).length,figures:arr(ag(p,"figures").items).length,verify:arr(ag(p,"verify").rows).length,search:arr(ag(p,"search").papers).length,log:arr(p.log).length});
+
+function render(){
+  renderList();
+  const m=document.getElementById("main");
+  if(!cur){m.innerHTML=emptyBox("아직 작업이 없습니다","채팅에서 포스터나 논문을 올리면 작업이 이곳에 추가됩니다.");return;}
+  const p=cur, c=counts(p);
+  m.innerHTML=`<div class="head"><div style="display:flex;flex-direction:column;gap:6px"><h1>${esc(p.title||p.id)}</h1>
+    <div class="meta">${p.kind?`<span>${esc(p.kind)}</span>`:""}${p.venue?`<span>${esc(p.venue)}</span>`:""}${p.updated?`<span>갱신 ${fmtT(p.updated)}</span>`:""}</div></div></div>
+  <div class="pipe">${AGENTS.map(x=>{const d=ag(p,x.k),s=st(d.status);return `<button class="stage" data-s="${s}" data-k="${x.k}"><span class="n">${x.n}</span><b>${x.t}</b><span class="pill" data-s="${s}">${s}</span></button>`}).join("")}</div>
+  <nav class="tabs">${TABS.map(x=>`<button class="tab ${tab===x.k?"on":""}" data-k="${x.k}">${x.t}${c[x.k]?`<span class="c">${c[x.k]}</span>`:""}</button>`).join("")}</nav>
+  ${VIEWS[tab](p)}`;
+  m.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.k));
+  m.querySelectorAll(".stage").forEach(b=>b.onclick=()=>{const k=b.dataset.k;const t={target:"overview",search:"search",verify:"verify",edit:"edit",debate:"debate",analysis:"analysis",figures:"figures",log:"log"}[k];go(t);});
+  const cpA=document.getElementById("cpA"); if(cpA) cpA.onclick=()=>copyText(cpA,tsv(arr(ag(p,"analysis").rows),[["no","연번"],["en","영어 문장"],["ko","한글 문장"]]));
+  const cpE=document.getElementById("cpE"); if(cpE) cpE.onclick=()=>copyText(cpE,tsv(arr(ag(p,"edit").rows),editView==="full"?[["no","연번"],["orig","원문"],["en","교정 영어 문장"],["ko","한글 문장"],["why","교정 근거"]]:[["no","연번"],["en","영어 문장"],["ko","한글 문장"]]));
+  const evB=document.getElementById("evB"); if(evB) evB.onclick=()=>{editView="basic";render();};
+  const evF=document.getElementById("evF"); if(evF) evF.onclick=()=>{editView="full";render();};
+}
+
+const GIST=location.hash.slice(1).split("&")[0].replace(/[^0-9a-f]/g,"");
+document.getElementById("back").href="./#"+GIST;
+// 탭 이동은 #<gist>&<탭> 형태로 (gist 번호를 지키기 위해)
+function readTab(){const h=location.hash.slice(1).split("&")[1]||"";tab=TABS.some(x=>x.k===h)?h:"overview";}
+window.removeEventListener("hashchange",()=>{});
+async function load(){
+  try{const r=await fetch("https://api.github.com/gists/"+GIST,{cache:"no-store"});
+      if(r.ok){const g=await r.json();const f=g.files&&g.files["review.json"];if(f)return JSON.parse(f.content);}}catch(e){}
+  const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+GIST+"/raw/review.json?t="+Date.now());
+  if(!r.ok)throw new Error(r.status);return r.json();
+}
+async function tick(){
+  const conn=document.getElementById("conn");
+  if(!GIST){conn.textContent="주소 끝에 #(데이터 번호)가 필요해요";document.getElementById("main").innerHTML='<div class="notice">연구 작업 현황 페이지와 같은 # 번호를 붙여서 열어 주세요.</div>';document.getElementById("plist").innerHTML="";return;}
+  try{const d=await load();
+    projects=(Array.isArray(d.projects)?d.projects:[]).slice().sort((a,b)=>String(b.updated||"").localeCompare(String(a.updated||"")));
+    cur=cur?projects.find(p=>p.id===cur.id)||projects[0]||null:projects[0]||null;
+    conn.textContent=d.now?"Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" 갱신":"갱신됨";
+    render();
+  }catch(e){conn.textContent="불러오기 실패. 잠시 뒤 다시 시도해요";if(!projects.length){document.getElementById("main").innerHTML='<div class="notice">아직 리뷰 데이터(review.json)가 없습니다. Mac에서 첫 결과를 올리면 이곳에 나타납니다.</div>';document.getElementById("plist").innerHTML="";}}
+}
+readTab();tick();setInterval(tick,30000);
+</script>
+</body>
+</html>
