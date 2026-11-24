@@ -74,6 +74,35 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 .faces .f.on .gh{animation:float 2.4s ease-in-out infinite}
 .faces .f.on::before{content:"";position:absolute;z-index:-1;top:16px;left:50%;width:46px;height:46px;margin-left:-23px;border-radius:50%;background:var(--soft);box-shadow:0 0 0 0 rgba(43,43,43,.25);animation:pulse 2s ease-out infinite}
 .faces .f:not(.on)::after{content:"z";position:absolute;top:14px;right:8px;font-size:10px;font-weight:700;color:var(--mute);animation:zz 2.8s linear infinite}
+/* 오케스트레이터 아이콘 (그림): 일할 때 별 지팡이 흔들기 + 반짝이, 쉴 때 침대 + 숨쉬기 + Zzz */
+.faces .f.of::after{content:none}
+.faces .f.of::before{content:none}
+.orch{position:relative;display:block;width:46px;height:46px;margin:0 0 1px}
+.orch img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.orch.wk img{transform-origin:55% 85%;animation:orchWave 1.6s ease-in-out infinite}
+.orch.sl img{transform-origin:50% 100%;animation:orchBreath 3.6s ease-in-out infinite}
+.orch .sp{position:absolute;width:6px;height:6px;opacity:0;pointer-events:none;background:#F2C94C;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:orchTw 1.6s ease-in-out infinite}
+.orch .sp.s1{top:0;left:2px}
+.orch .sp.s2{top:12px;left:-4px;width:4px;height:4px;animation-delay:.5s}
+.orch .sp.s3{top:-3px;left:16px;width:5px;height:5px;animation-delay:1s}
+.orch .sp.s4{top:22px;left:1px;width:3px;height:3px;border-radius:50%;clip-path:none;background:#B9A6E8;animation-delay:.8s}
+.orch .zz{position:absolute;top:-2px;right:-2px;font-size:9px;font-weight:800;color:var(--mute);opacity:0;pointer-events:none;animation:orchZ 3.6s linear infinite}
+.orch .zz.z2{font-size:11px;animation-delay:1.2s}
+.orch .zz.z3{font-size:13px;animation-delay:2.4s}
+.ag-g .ogi{transform-box:fill-box}
+.ag-g .ogi.wk{transform-origin:55% 85%;animation:orchWave 1.6s ease-in-out infinite}
+.ag-g .ogi.sl{transform-origin:50% 100%;animation:orchBreath 3.6s ease-in-out infinite}
+.ag-g .ogs{transform-box:fill-box;transform-origin:center;opacity:0;animation:orchTw 1.6s ease-in-out infinite}
+.ag-g .ogs:nth-of-type(2){animation-delay:.5s}.ag-g .ogs:nth-of-type(3){animation-delay:1s}.ag-g circle.ogs{animation-delay:.8s}
+.ag-g .nd text.ogz{font-size:10px;font-weight:800;fill:var(--mute);opacity:0;transform-box:fill-box;animation:orchZ 3.6s linear infinite}
+.ag-g .nd text.ogz:nth-of-type(1){font-size:10px}.ag-g .nd text.ogz:nth-of-type(2){font-size:13px;animation-delay:1.2s}.ag-g .nd text.ogz:nth-of-type(3){font-size:16px;animation-delay:2.4s}
+@media (prefers-reduced-motion:reduce){.ag-g .ogi,.ag-g .ogs,.ag-g .ogz{animation:none!important}.ag-g .ogs{opacity:.8}.ag-g .ogz:first-of-type{opacity:.8}}
+@keyframes orchWave{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-3px) rotate(-7deg)}55%{transform:translateY(-1px) rotate(5deg)}80%{transform:translateY(-2px) rotate(-2deg)}}
+@keyframes orchBreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.035)}}
+@keyframes orchTw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+@keyframes orchZ{0%{opacity:0;transform:translate(0,4px) scale(.7)}20%{opacity:.9}100%{opacity:0;transform:translate(7px,-16px) scale(1.2)}}
+@media (prefers-reduced-motion:reduce){.orch img,.orch .sp,.orch .zz{animation:none!important}.orch .sp{opacity:.8}.orch .zz.z1{opacity:.8}}
+@media (max-width:420px){.orch{width:42px;height:42px}}
 .faces .tt{font-size:11px;font-weight:750;color:var(--onacc);background:var(--accent);border-radius:99px;padding:0 6px;min-height:16px;line-height:16px;white-space:nowrap}
 .faces .tt:empty,.faces .tt.no{background:none}
 /* 에이전트 연결 그래프 (2026-11-24) */
@@ -258,6 +287,14 @@ main>section.card:nth-of-type(5){animation-delay:.2s}main>section.card:nth-of-ty
   <section class="card" id="s-notes"><h2><i class="hi" data-gh="note"></i>실험 노트 · 결과 정리</h2><div id="notes" class="list"></div></section>
 
   <section class="card" style="display:none"><h2>에이전트 13명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
+  <section class="card" id="s-journal"><h2><i class="hi" data-gh="check"></i>목표 저널: npj Digital Medicine</h2><div class="sub">형식 기준 .claude/agents/npj_rules.md · 저널 형식 담당(여우)이 새 그림·원고마다 점검</div>
+    <ul style="margin:6px 0 0;padding-left:18px;line-height:1.65">
+      <li>그림 폭 89 mm (한 단) · 183 mm (두 단), 높이 170 mm 이하 · Arial 5–8 pt (우리 7 pt) · 패널 글자 굵은 소문자 a, b</li>
+      <li>벡터 PDF + 300 dpi 이상, RGB · 빨강–초록·무지개 색 금지 · 배경 격자 없음 · 축 자르지 않기</li>
+      <li>Legend: 짧은 제목 한 문장 + 패널별 설명 + 오차막대 정의·n, 그림당 350 단어 이하</li>
+      <li>그림·표 개수 한도 없음 (간결하게) — 우리 목표 본문 8개 이하</li>
+      <li>초록 150 단어 · 제목 15 단어 · 참고문헌 60개 이하, 본문 단어 한도 없음</li>
+    </ul></section>
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
 <script>
@@ -293,7 +330,7 @@ function ghCore(face,hat){hat=hat||"#B9A6E8";const eyes=face==="sad"?`<path d="M
   `<rect x="10" y="16.5" width="33" height="7.5" rx="3.75" fill="#fff" stroke="#E2DDF3" stroke-width="1.6"/><circle cx="41" cy="5" r="3.8" fill="#fff" stroke="#E2DDF3" stroke-width="1.6"/>`+
   eyes+`<ellipse cx="17.5" cy="38.6" rx="3" ry="1.9" fill="#F6A9C0" opacity=".85"/><ellipse cx="38.5" cy="38.6" rx="3" ry="1.9" fill="#F6A9C0" opacity=".85"/>`+
   (face==="sad"?`<path d="M26 40.2q2-1.8 4 0" fill="none" stroke="${GI}" stroke-width="1.6" stroke-linecap="round"/><path d="M39.5 35.5c-1 1.6-1.6 2.6-1.6 3.3a1.6 1.6 0 0 0 3.2 0c0-.7-.6-1.7-1.6-3.3z" fill="#8EC5F0"/>`:`<path d="M26 37.6q2 2.6 4 0" fill="none" stroke="${GI}" stroke-width="1.6" stroke-linecap="round"/>`)}
-const HAT={"code-writer":"#6F9BD1","code-checker":"#4FA89C","compute-manager":"#8C97A6","results-analyst":"#58A55C","figure-maker":"#F0A0B8","note-writer":"#8FD0E8","research-advisor":"#3F6FA8","paper-writer":"#A8475C","codex-reviewer":"#D4C24A","session-recorder":"#8B6B4F","debate-moderator":"#8564B8","review-panel":"#B24FA6","html-publisher":"#C5DE7A","token-watcher":"#4A4A55","orchestrator":"#6B5FC7"};
+const HAT={"code-writer":"#6F9BD1","code-checker":"#4FA89C","compute-manager":"#8C97A6","results-analyst":"#58A55C","figure-maker":"#F0A0B8","note-writer":"#8FD0E8","research-advisor":"#3F6FA8","paper-writer":"#A8475C","codex-reviewer":"#D4C24A","session-recorder":"#8B6B4F","debate-moderator":"#8564B8","review-panel":"#B24FA6","html-publisher":"#C5DE7A","token-watcher":"#4A4A55","journal-checker":"#C9843A","orchestrator":"#6B5FC7"};
 const HATK={wand:HAT.orchestrator,code:HAT["code-writer"],mag:HAT["code-checker"],gear:HAT["compute-manager"],chart:HAT["results-analyst"],brush:HAT["figure-maker"],note:HAT["note-writer"],pen:HAT["paper-writer"],check:HAT["codex-reviewer"],chat:HAT["debate-moderator"],star:HAT["review-panel"],coin:HAT["token-watcher"],monitor:"#5C8FBF",hour:"#9A7FC9",ok:"#58A55C",x:"#C05A6E",q:"#8C97A6",image:"#F0A0B8",doc:"#6F9BD1",phone:"#4FA89C"};
 function gh(k,o){o=o||{};const s=o.s||28,c="gh "+(o.cls||"");
   if(k==="team")return `<svg class="${c}" width="${s}" height="${s}" viewBox="0 0 64 64" aria-hidden="true"><g transform="translate(-1 20) scale(.6)">${ghCore(0,"#6F9BD1")}</g><g transform="translate(29 22) scale(.6)">${ghCore(0,"#58A55C")}</g><g transform="translate(12 6) scale(.7)">${ghCore(0,"#B24FA6")}</g></svg>`;
@@ -369,6 +406,12 @@ const PET={
   `<path d="M46 43 56 31q5 0 4 5l-4 7 5 6q1 5-4 4l-11-5z" fill="#BFDDF2" stroke="#9CC4E2" stroke-width="2" stroke-linejoin="round"/><ellipse cx="28" cy="42" rx="22" ry="16" fill="#BFDDF2" stroke="#9CC4E2" stroke-width="2"/>`+
   `<path d="M8 47q20 11 40 0-3 9-20 10C14 57 9 52 8 47z" fill="#E6F2FB"/><path d="M27 50q4 6 10 5" fill="none" stroke="#9CC4E2" stroke-width="2" stroke-linecap="round"/>`+
   PE(17,40)+PE(31,40)+PC(12.5,45.5)+PC(35.5,45.5)+PM(24,44)+PH(21,28,-12,.74,c),
+ /* 여우: 뾰족 귀 + 흰 주둥이 + 끝이 흰 큰 꼬리 + 체크 (저널 형식) */
+ "journal-checker":c=>`<path d="M42 57c11 2 17-7 15-17-2-7-8-9-10-5 3 4 2 11-5 16z" fill="#F4C9A0" stroke="#E2AE80" stroke-width="2" stroke-linejoin="round"/><path d="M57 40c-1-4-5-6-8-4 2 2 3 4 2 7z" fill="#fff"/>`+
+  `<ellipse cx="30" cy="50" rx="13" ry="10" fill="#F4C9A0" stroke="#E2AE80" stroke-width="2"/><ellipse cx="30" cy="52" rx="7.5" ry="6.5" fill="#fff"/>`+
+  `<path d="M13 28 12 8l14 10zM47 28 48 8 34 18z" fill="#F4C9A0" stroke="#E2AE80" stroke-width="2" stroke-linejoin="round"/><path d="M16 21l-.5-8 6 4.5zM44 21l.5-8-6 4.5z" fill="#B07A55" opacity=".45"/>`+
+  `<path d="M30 14c12 0 20 7 20 16 0 6-9 12-20 14C19 42 10 36 10 30c0-9 8-16 20-16z" fill="#F4C9A0" stroke="#E2AE80" stroke-width="2"/><path d="M30 43c-7-1-13-5-15-10 5 1 10 0 15-4 5 4 10 5 15 4-2 5-8 9-15 10z" fill="#fff"/>`+
+  PE(23,29)+PE(37,29)+PC(17,34)+PC(43,34)+`<ellipse cx="30" cy="36.5" rx="2" ry="1.4" fill="${GI}"/>`+PM(30,38.6)+PH(30,15,-8,.74,c)+PP("check",50,53,.6),
  /* 다람쥐: 큰 말린 꼬리 + 동전 */
  "token-watcher":c=>`<path d="M37 58C53 61 63 47 60 32 58 18 46 11 38 17c8 1 12 8 10 15-2 6-9 8-10 14z" fill="#D8C8BA" stroke="#C3B0A0" stroke-width="2" stroke-linejoin="round"/><path d="M47 22c5 2 8 7 8 13" fill="none" stroke="#E8DCD1" stroke-width="2.4" stroke-linecap="round"/>`+
   `<ellipse cx="27" cy="48" rx="12" ry="11" fill="#E6DAD0" stroke="#C3B0A0" stroke-width="2"/><ellipse cx="27" cy="50" rx="7.5" ry="8" fill="#fff"/><path d="M15 22 14 9l9 7zM39 22l1-13-9 7z" fill="#E6DAD0" stroke="#C3B0A0" stroke-width="1.8" stroke-linejoin="round"/>`+
@@ -379,8 +422,8 @@ function pet(id,o){o=o||{};const s=o.s||40;return `<svg class="gh ${o.cls||""}" 
 function gl(k,s){return `<svg class="gl" width="${s||16}" height="${s||16}" viewBox="39 39 24 24" aria-hidden="true">${GP[k]||GP.doc}</svg>`}
 document.querySelectorAll("[data-gh]").forEach(e=>{e.innerHTML=gh(e.dataset.gh,{s:+(e.dataset.s||28),cls:e.dataset.cls||""})});
 document.querySelectorAll("[data-gl]").forEach(e=>{e.outerHTML=gl(e.dataset.gl)});
-const AGP={"orchestrator":"wand","code-writer":"code","code-checker":"mag","compute-manager":"gear","results-analyst":"chart","figure-maker":"brush","note-writer":"note","research-advisor":"mag","paper-writer":"pen","codex-reviewer":"check","session-recorder":"note","debate-moderator":"chat","review-panel":"star","html-publisher":"code","token-watcher":"coin"};
-const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","review-panel":"심사 패널","token-watcher":"토큰 감시","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
+const AGP={"orchestrator":"wand","code-writer":"code","code-checker":"mag","compute-manager":"gear","results-analyst":"chart","figure-maker":"brush","note-writer":"note","research-advisor":"mag","paper-writer":"pen","codex-reviewer":"check","session-recorder":"note","debate-moderator":"chat","review-panel":"star","html-publisher":"code","token-watcher":"coin","journal-checker":"check"};
+const NAME={"code-writer":"코드 작성","code-checker":"코드 점검","compute-manager":"계산 조절","research-advisor":"문헌 검증","paper-writer":"논문 초안","results-analyst":"결과 분석","html-publisher":"노트 HTML","figure-maker":"그래프","note-writer":"실험노트","codex-reviewer":"Codex 검토","session-recorder":"기록","debate-moderator":"토론","review-panel":"심사 패널","token-watcher":"토큰 감시","journal-checker":"저널 형식","general":"일반","general-purpose":"일반","Explore":"탐색","fork":"분기","orchestrator":"오케스트레이터"};
 let UP=new Set(),FG="";
 const ICON=f=>gl(f.endsWith(".png")?"image":f.endsWith(".md")||f.endsWith(".html")?"note":f.endsWith(".csv")?"chart":f.endsWith(".py")?"code":"doc");
 function noteHref(f){return "note.html?v="+VER+"#"+new URLSearchParams({g:FG,f:f.replace(/\//g,"__"),b:GIST})}
@@ -434,31 +477,35 @@ function runnerOld(id){const p=SPR[id]||SPR["code-writer"],c={H:PAL[id]||"#888",
  const A=["...BB...","S.BBBB..","..BBBB.S","...BB...","..K..K..",".K....K.","K......K"];
  const Bf=["...BB...","..BBBBS.",".SBBBB..","...BB...","...KK...","...K.K..","..K..K.."];
  return `<svg class="runner" viewBox="0 0 8 15" shape-rendering="crispEdges" aria-hidden="true">${rect(p,0)}<g class="fa">${rect(A,8)}</g><g class="fb">${rect(Bf,8)}</g></svg>`}
-const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["codex-reviewer","Codex 검토","최종 관문·교차 검토"],["session-recorder","기록","인수인계·다른 창 이어 하기"],["debate-moderator","토론","전문가 8명 토론 진행"],["review-panel","심사 패널","npj 편집자·리뷰어 10명이 새 그림마다 더 할 실험 제안"],["html-publisher","노트 HTML","노트를 보기 좋게"],["token-watcher","토큰 감시","에이전트별 토큰 집계·아끼는 방법"]];
+const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker","코드 점검","누수·계산 오류 찾기"],["compute-manager","계산 조절","컴퓨터 부하·실행"],["results-analyst","결과 분석","짝 비교·신뢰구간"],["figure-maker","그래프","결과 그림"],["note-writer","실험노트","노트 작성"],["research-advisor","문헌 검증","논문 비교·더 좋은 방법"],["paper-writer","논문 초안","원고 쓰기"],["codex-reviewer","Codex 검토","최종 관문·교차 검토"],["session-recorder","기록","인수인계·다른 창 이어 하기"],["debate-moderator","토론","전문가 8명 토론 진행"],["review-panel","심사 패널","npj 편집자·리뷰어 10명이 새 그림마다 더 할 실험 제안"],["html-publisher","노트 HTML","노트를 보기 좋게"],["token-watcher","토큰 감시","에이전트별 토큰 집계·아끼는 방법"],["journal-checker","저널 형식","npj 규칙으로 그림·legend·원고 형식 점검"]];
 function nowHTML(ag,now){
   const run=TEAM.map(([id,nm])=>[id,nm,ag.find(a=>(a.role===id||a.agent===id)&&a.state==="running")]).filter(x=>x[2]);
   return run.map(([id,nm,r])=>`<div class="nw">${sprite(id)}<div><div class="n">${gl("hour",18)} ${nm} <span class="t">· ${dur(now-r.start)}째</span></div><div class="d">${esc(r.desc||"")}</div></div></div>`).join("")||`<div class="empty">지금 일하는 에이전트 없음</div>`}
+function orchIcon(ob){return ob?`<span class="orch wk" role="img" aria-label="오케스트레이터 일하는 중"><img src="./img/orchestrator_working.png" alt="" width="46" height="46" decoding="async"><i class="sp s1"></i><i class="sp s2"></i><i class="sp s3"></i><i class="sp s4"></i></span>`:`<span class="orch sl" role="img" aria-label="오케스트레이터 쉬는 중"><img src="./img/orchestrator_sleeping.png" alt="" width="46" height="46" decoding="async"><i class="zz z1">z</i><i class="zz z2">z</i><i class="zz z3">Z</i></span>`}
 function facesHTML(ag){const D=window.__d||{},G=D.guard||{state:"off"},now=D.now||Date.now()/1000,o=D.orchestrator||{};
   const tm=s=>{s=Math.max(0,Math.round(s));return s<60?s+"초":s<3600?Math.floor(s/60)+"분":Math.floor(s/3600)+"시간"+Math.round(s%3600/60)+"분"};
   const ob=o.state==="busy";
-  const head=`<div class="f ${ob?"on":""}"><span class="tt${ob&&o.since?"":" no"}">${ob&&o.since?tm(now-o.since):"&nbsp;"}</span>${ob?runner("orchestrator"):sprite("orchestrator")}<span>오케스트레이터</span></div>`;
+  const head=`<div class="f of ${ob?"on":""}"><span class="tt${ob&&o.since?"":" no"}">${ob&&o.since?tm(now-o.since):"&nbsp;"}</span>${orchIcon(ob)}<span>오케스트레이터</span></div>`;
   return head+TEAM.map(([id,nm])=>{let on,st=null;
     if(id==="compute-manager"){const r=ag.filter(a=>(a.role===id||a.agent===id)&&a.state==="running").sort((a,b)=>a.start-b.start)[0];on=G.state!=="off"||!!r;if(r)st=r.start}else{const r=ag.filter(a=>(a.role===id||a.agent===id)&&a.state==="running").sort((a,b)=>a.start-b.start)[0];on=!!r;if(r)st=r.start}
     return `<div class="f ${on?"on":""}"><span class="tt${st?"":" no"}">${st?tm(now-st):"&nbsp;"}</span>${on?runner(id):sprite(id)}<span>${nm}</span></div>`}).join("")}
 /* ── 에이전트 연결 그래프: CLAUDE.md 협업 흐름 그대로. 일하는 노드는 진하게+맥박, 이어진 화살표는 흐르는 점선 ── */
-const AGL={orch:["orchestrator","오케스트레이터"],raP:["research-advisor","문헌(계획)"],cw:["code-writer","코드 작성"],cc:["code-checker","코드 점검"],cm:["compute-manager","계산 조절"],ran:["results-analyst","결과 분석"],fm:["figure-maker","그래프"],nw:["note-writer","실험노트"],rp:["review-panel","심사 패널"],raV:["research-advisor","문헌(검증)"],pw:["paper-writer","논문 초안"],cr:["codex-reviewer","Codex 검토"],usr:["user","사용자"],sr:["session-recorder","기록"],tw:["token-watcher","토큰 감시"],hp:["html-publisher","노트 HTML"],dm:["debate-moderator","토론"]};
+const AGL={orch:["orchestrator","오케스트레이터"],raP:["research-advisor","문헌(계획)"],cw:["code-writer","코드 작성"],cc:["code-checker","코드 점검"],cm:["compute-manager","계산 조절"],ran:["results-analyst","결과 분석"],fm:["figure-maker","그래프"],nw:["note-writer","실험노트"],rp:["review-panel","심사 패널"],raV:["research-advisor","문헌(검증)"],pw:["paper-writer","논문 초안"],cr:["codex-reviewer","Codex 검토"],usr:["user","사용자"],sr:["session-recorder","기록"],tw:["token-watcher","토큰 감시"],hp:["html-publisher","노트 HTML"],dm:["debate-moderator","토론"],jc:["journal-checker","저널 형식"]};
 const AGE=[["orch","raP"],["raP","cw"],["cw","cc"],["cc","cw","bk"],["cc","cm"],["cm","ran"],["ran","fm"],["ran","nw"],["fm","rp"],["nw","raV"],["rp","pw"],["raV","pw"],["pw","cr"],["cr","usr"]];
 const AGLAY={
  wide:{W:900,H:470,w:150,h:60,ic:50,side:{x:712,y:84,w:176,h:372,t:"옆에서 돕는 에이전트"},
-  p:{orch:[340,40],raP:[90,140],cw:[250,140],cc:[410,140],cm:[570,140],ran:[570,262],fm:[410,222],nw:[410,302],rp:[250,222],raV:[250,302],pw:[90,262],cr:[90,400],usr:[250,400],sr:[800,140],tw:[800,220],hp:[800,300],dm:[800,380]}},
- narrow:{W:360,H:940,w:160,h:60,ic:46,side:{x:6,y:772,w:348,h:162,t:"옆에서 돕는 에이전트"},
-  p:{orch:[180,36],raP:[95,122],cw:[265,122],cc:[265,206],cm:[95,206],ran:[95,290],fm:[95,380],nw:[265,380],rp:[95,462],raV:[265,462],pw:[180,546],cr:[180,628],usr:[180,710],sr:[95,824],tw:[265,824],hp:[95,898],dm:[265,898]}}};
+  p:{orch:[340,40],raP:[90,140],cw:[250,140],cc:[410,140],cm:[570,140],ran:[570,262],fm:[410,222],nw:[410,302],rp:[250,222],raV:[250,302],pw:[90,262],cr:[90,400],usr:[250,400],sr:[800,140],tw:[800,205],hp:[800,270],dm:[800,335],jc:[800,400]}},
+ narrow:{W:360,H:1014,w:160,h:60,ic:46,side:{x:6,y:772,w:348,h:236,t:"옆에서 돕는 에이전트"},
+  p:{orch:[180,36],raP:[95,122],cw:[265,122],cc:[265,206],cm:[95,206],ran:[95,290],fm:[95,380],nw:[265,380],rp:[95,462],raV:[265,462],pw:[180,546],cr:[180,628],usr:[180,710],sr:[95,824],tw:[265,824],hp:[95,898],dm:[265,898],jc:[180,972]}}};
 function agOn(D){const ag=D.agents||[],G=D.guard||{state:"off"},o=D.orchestrator||{},now=D.now||Date.now()/1000,on={};
   for(const a of ag)if(a.state==="running"){const id=a.role&&AGL_IDS.has(a.role)?a.role:a.agent;if(!on[id]||a.start<on[id])on[id]=a.start||now}
   if(G.state&&G.state!=="off"&&!on["compute-manager"])on["compute-manager"]=-1;
   if(o.state==="busy")on.orchestrator=o.since||-1;return on}
 const AGL_IDS=new Set(Object.values(AGL).map(x=>x[0]));
-function agIcon(id,s,x,y){const v=id==="user"?gh("base",{s}):id==="orchestrator"?gh("wand",{s}):PET[id]?pet(id,{s}):gh(AGP[id]||"",{s,hat:HAT[id]});return v.replace("<svg ",`<svg x="${x}" y="${y}" `)}
+function orchSvg(s,on){const st=(cx,cy,r,c)=>`<path class="ogs" fill="${c}" d="M${cx} ${cy-r}L${cx+r*.28} ${cy-r*.28}L${cx+r} ${cy}L${cx+r*.28} ${cy+r*.28}L${cx} ${cy+r}L${cx-r*.28} ${cy+r*.28}L${cx-r} ${cy}L${cx-r*.28} ${cy-r*.28}Z"/>`;
+  const fx=on?`${st(6,8,4.5,"#F2C94C")}${st(2,24,3,"#F2C94C")}${st(20,2,3.5,"#F2C94C")}<circle class="ogs" cx="8" cy="36" r="1.8" fill="#B9A6E8"/>`:`<text class="ogz" x="50" y="14">z</text><text class="ogz" x="50" y="14">z</text><text class="ogz" x="50" y="14">Z</text>`;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 64 64" overflow="visible" aria-hidden="true"><g class="ogi ${on?"wk":"sl"}"><image href="./img/orchestrator_${on?"working":"sleeping"}.png" x="0" y="0" width="64" height="64" preserveAspectRatio="xMidYMid meet"/></g>${fx}</svg>`}
+function agIcon(id,s,x,y,on){const v=id==="user"?gh("base",{s}):id==="orchestrator"?orchSvg(s,on):PET[id]?pet(id,{s}):gh(AGP[id]||"",{s,hat:HAT[id]});return v.replace("<svg ",`<svg x="${x}" y="${y}" `)}
 function graphHTML(D,mode){const L=AGLAY[mode],P=L.p,w=L.w,h=L.h,now=D.now||Date.now()/1000,on=agOn(D);
   const isOn=k=>AGL[k][0] in on;
   const tm=s=>{s=Math.max(0,Math.round(s));return s<60?s+"초":s<3600?Math.floor(s/60)+"분":Math.floor(s/3600)+"시간"};
@@ -472,7 +519,7 @@ function graphHTML(D,mode){const L=AGLAY[mode],P=L.p,w=L.w,h=L.h,now=D.now||Date
     return `<path class="eg${kind?" "+kind:""}${act?" flow":""}" d="${d}"/><path class="ah${act?" on":""}" d="M0 0L-9 -5L-9 5Z" transform="translate(${ex} ${ey}) rotate(${ang})"/>`};
   const node=k=>{const [id,nm]=AGL[k],[cx,cy]=P[k],x=cx-w/2,y=cy-h/2,o=isOn(k),st=on[id],ic=L.ic;
     const tt=o?(st>0?tm(now-st)+"째":"일하는 중"):"";
-    return `<g class="nd${o?" on":""}${id==="user"?" usr":""}"><title>${esc(nm)}${o?" · 일하는 중":""}</title><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><g class="ic">${agIcon(id,ic,x+9,cy-ic/2)}</g>${tt?`<text x="${x+ic+16}" y="${cy-1}">${esc(nm)}</text><text class="tm" x="${x+ic+16}" y="${cy+13}">${tt}</text>`:`<text x="${x+ic+16}" y="${cy+4.5}">${esc(nm)}</text>`}</g>`};
+    return `<g class="nd${o?" on":""}${id==="user"?" usr":""}"><title>${esc(nm)}${o?" · 일하는 중":""}</title><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><g class="ic">${agIcon(id,ic,x+9,cy-ic/2,!!o)}</g>${tt?`<text x="${x+ic+16}" y="${cy-1}">${esc(nm)}</text><text class="tm" x="${x+ic+16}" y="${cy+13}">${tt}</text>`:`<text x="${x+ic+16}" y="${cy+4.5}">${esc(nm)}</text>`}</g>`};
   const S=L.side;
   return `<svg class="ag-g${mode==="narrow"?" nar":""}" viewBox="0 0 ${L.W} ${L.H}" role="img" aria-label="에이전트 연결 그래프">`+
    `<rect class="sbx" x="${S.x}" y="${S.y}" width="${S.w}" height="${S.h}" rx="16"/><text class="sec" x="${S.x+S.w/2}" y="${S.y+20}" text-anchor="middle">${S.t}</text>`+
@@ -600,7 +647,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="69";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="71";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
