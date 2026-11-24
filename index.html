@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet">
 <style>
 /* 2026-11-24 차분한 디자인: 흰 바탕·먹색·가는 글자 (CALM) */
-:root{--bg:#FFFFFF;--cardline:#E4E2DE;--gdot:#D9D6D0;--card:#fff;--ink:#2B2B2B;--mute:#77746E;--line:#E4E2DE;--accent:#2B2B2B;--accent2:#6A6A6A;--soft:#F5F3EF;--run:#2B2B2B;--ok:#3FA37A;--bad:#E0607A;--warn:#D9952B;--bar:#ECE9E4;--onacc:#fff;--hdr:#FAF8F5;--shadow:0 1px 2px rgba(0,0,0,.03),0 4px 14px rgba(0,0,0,.04);--r:14px;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#171715;--cardline:#34332F;--gdot:rgba(255,255,255,.12);--card:#201F1C;--ink:#ECE9E2;--mute:#A09C93;--line:#34332F;--accent:#ECE9E2;--accent2:#A09C93;--soft:#2A2926;--run:#ECE9E2;--ok:#5CC08A;--bad:#F07C93;--warn:#E8B45A;--bar:#2F2E2A;--onacc:#1B1B1A;--hdr:#201F1C;--shadow:0 1px 2px rgba(0,0,0,.3);color-scheme:dark}}
+:root{--brown:#A88B6E;--brown2:#8A5A34;--bg:#FFFFFF;--cardline:#E4E2DE;--gdot:#D9D6D0;--card:#fff;--ink:#2B2B2B;--mute:#77746E;--line:#E4E2DE;--accent:#2B2B2B;--accent2:#6A6A6A;--soft:#F5F3EF;--run:#2B2B2B;--ok:#3FA37A;--bad:#E0607A;--warn:#D9952B;--bar:#ECE9E4;--onacc:#fff;--hdr:#FAF8F5;--shadow:0 1px 2px rgba(0,0,0,.03),0 4px 14px rgba(0,0,0,.04);--r:14px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--brown:#9C8266;--brown2:#D2A273;--bg:#171715;--cardline:#34332F;--gdot:rgba(255,255,255,.12);--card:#201F1C;--ink:#ECE9E2;--mute:#A09C93;--line:#34332F;--accent:#ECE9E2;--accent2:#A09C93;--soft:#2A2926;--run:#ECE9E2;--ok:#5CC08A;--bad:#F07C93;--warn:#E8B45A;--bar:#2F2E2A;--onacc:#1B1B1A;--hdr:#201F1C;--shadow:0 1px 2px rgba(0,0,0,.3);color-scheme:dark}}
 *{box-sizing:border-box;min-width:0}
 html,body{overflow-x:hidden}
 html{scroll-behavior:smooth}
@@ -82,26 +82,26 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 .agraph{border-radius:14px;background-color:var(--soft);background-image:radial-gradient(circle,var(--gdot) 1px,transparent 1.4px);background-size:18px 18px;padding:6px;overflow:hidden}
 .faces[hidden],.agraph[hidden]{display:none!important}
 .agraph svg.ag-g{display:block;width:100%;height:auto}
-.ag-g .eg{fill:none;stroke:var(--accent2);stroke-width:1.6;opacity:.5}
+.ag-g .eg{fill:none;stroke:var(--brown);stroke-width:1.6;opacity:.45}
 .ag-g .eg.bk{stroke-dasharray:4 4}
-.ag-g .eg.flow{stroke:var(--accent);stroke-width:2.4;opacity:1;stroke-dasharray:7 6;animation:agflow .9s linear infinite}
-.ag-g .ah{fill:var(--accent2);opacity:.7}.ag-g .ah.on{fill:var(--accent);opacity:1}
+.ag-g .eg.flow{stroke:var(--brown2);stroke-width:2.4;opacity:1;stroke-dasharray:7 6;animation:agflow .9s linear infinite}
+.ag-g .ah{fill:var(--brown);opacity:.6}.ag-g .ah.on{fill:var(--brown2);opacity:1}
 .ag-g .nd{opacity:.6}
-.ag-g .nd .bx{fill:var(--card);stroke:none}
+.ag-g .nd .bx{fill:transparent;stroke:none}
 .ag-g .nd text{fill:var(--mute);font-size:13px;font-weight:600}
 .ag-g.nar .nd text{font-size:14.5px}
 .ag-g .nd.on{opacity:1}
-.ag-g .nd.on .bx{stroke:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.08)) drop-shadow(0 6px 14px rgba(0,0,0,.08))}
+.ag-g .nd.on .bx{stroke:none}
 .ag-g .nd.on .ic{transform-box:fill-box;transform-origin:center;animation:float 2.4s ease-in-out infinite}
 .ag-g .nd .tm{fill:var(--mute);font-size:11px;font-weight:500}
 .ag-g .nd.on text{fill:var(--ink);font-weight:750}
 .ag-g .nd.on .gh{filter:none}
-.ag-g .nd .hl{fill:var(--accent);stroke:none;opacity:0}
+.ag-g .nd .hl{display:none}
 .ag-g .nd.on .hl{transform-box:fill-box;transform-origin:center;animation:agpulse 1.8s ease-out infinite}
-.ag-g .nd.usr .bx{fill:var(--accent);stroke:none}.ag-g .nd.usr text{fill:#fff}.ag-g .nd.usr{opacity:.85}
+.ag-g .nd.usr .bx{fill:transparent;stroke:none}.ag-g .nd.usr text{fill:var(--ink)}.ag-g .nd.usr{opacity:.85}
 .ag-g .tg{fill:var(--accent)}.ag-g .tgt{fill:#fff;font-size:10.5px;font-weight:750}
 .ag-g .sec{fill:var(--mute);font-size:12px;font-weight:700}
-.ag-g .sbx{fill:none;stroke:var(--accent2);stroke-dasharray:3 5;opacity:.6}
+.ag-g .sbx{fill:none;stroke:var(--brown);stroke-dasharray:3 5;opacity:.6}
 @keyframes agflow{to{stroke-dashoffset:-13}}
 @keyframes agpulse{0%{opacity:.10;transform:scale(1)}100%{opacity:0;transform:scale(1.08,1.35)}}
 @media (prefers-reduced-motion:reduce){.ag-g .eg.flow,.ag-g .nd.on .hl{animation:none!important}.ag-g .nd.on .hl{opacity:.5}}
@@ -600,7 +600,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="65";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="66";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
