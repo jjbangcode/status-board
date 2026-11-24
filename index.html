@@ -6,8 +6,8 @@
 <title>작업 현황</title><meta name="robots" content="noindex">
 <style>
 /* 2026-11-24 새 디자인: 연한 라벤더·흰 카드 + 산타 모자 아기 유령 아이콘 */
-:root{--bg:#F3F1FA;--card:#fff;--ink:#2E3247;--mute:#6B6F86;--line:#ECE8F7;--accent:#7C6FD6;--accent2:#A99CF0;--soft:#EEEBFB;--run:#7C6FD6;--ok:#3FA37A;--bad:#E0607A;--warn:#D9952B;--bar:#EFECFA;--shadow:0 1px 2px rgba(80,70,150,.05),0 8px 28px rgba(91,79,170,.08);--r:18px;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#17162B;--card:#222139;--ink:#ECEAF7;--mute:#A9A6C4;--line:#33314F;--accent:#A79BF0;--accent2:#7C6FD6;--soft:#2D2A4C;--run:#A79BF0;--ok:#5CC08A;--bad:#F07C93;--warn:#E8B45A;--bar:#2C2A47;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.25);color-scheme:dark}}
+:root{--bg:#FFFFFF;--cardline:#ECECF2;--gdot:#D3D3DC;--card:#fff;--ink:#2E3247;--mute:#6B6F86;--line:#ECE8F7;--accent:#7C6FD6;--accent2:#A99CF0;--soft:#EEEBFB;--run:#7C6FD6;--ok:#3FA37A;--bad:#E0607A;--warn:#D9952B;--bar:#EFECFA;--shadow:0 1px 2px rgba(80,70,150,.05),0 8px 28px rgba(91,79,170,.08);--r:18px;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#17162B;--cardline:transparent;--gdot:rgba(124,111,214,.22);--card:#222139;--ink:#ECEAF7;--mute:#A9A6C4;--line:#33314F;--accent:#A79BF0;--accent2:#7C6FD6;--soft:#2D2A4C;--run:#A79BF0;--ok:#5CC08A;--bad:#F07C93;--warn:#E8B45A;--bar:#2C2A47;--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.25);color-scheme:dark}}
 *{box-sizing:border-box;min-width:0}
 html,body{overflow-x:hidden}
 html{scroll-behavior:smooth}
@@ -16,7 +16,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,
 main{max-width:900px;margin:0 auto;display:grid;gap:16px}
 a{color:var(--accent)}
 /* 머리 */
-header{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;background:var(--card);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;isolation:isolate}
+header{border:1px solid var(--cardline);display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;background:var(--card);border-radius:24px;padding:16px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;isolation:isolate}
 header::before{content:"";position:absolute;z-index:-1;right:-40px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--soft),transparent 70%);pointer-events:none}
 .mascot{grid-row:1/span 2;width:72px;height:72px;position:relative}
 .mascot .gh{width:72px;height:72px;animation:float 3.6s ease-in-out infinite;filter:drop-shadow(0 6px 8px rgba(124,111,214,.18))}
@@ -29,7 +29,7 @@ h1{font-size:21px;margin:0;letter-spacing:-.01em;font-weight:750}
 .hbtn svg{width:16px;height:16px}
 @media (min-width:560px){header{grid-template-columns:auto 1fr auto}.hbtns{grid-column:3;grid-row:1/span 2;margin:0}}
 /* 카드 */
-.card{background:var(--card);border:0;border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
+.card{background:var(--card);border:1px solid var(--cardline);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)}
 .card h2{font-size:16px;color:var(--ink);margin:0 0 12px;font-weight:700;letter-spacing:-.01em}
 .card>h2{cursor:pointer;user-select:none;-webkit-user-select:none;position:relative;padding-right:28px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .card>h2::after{content:"";position:absolute;right:6px;top:50%;width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:translateY(-75%) rotate(45deg);transition:transform .2s}
@@ -78,7 +78,7 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 /* 에이전트 연결 그래프 (2026-11-24) */
 #s-faces h2{display:flex;align-items:center;gap:6px}
 .vbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:650;border:0;background:var(--soft);color:var(--accent);border-radius:99px;padding:5px 12px;cursor:pointer;white-space:nowrap}
-.agraph{border-radius:14px;background-color:var(--soft);background-image:radial-gradient(circle,rgba(124,111,214,.22) 1px,transparent 1.4px);background-size:18px 18px;padding:6px;overflow:hidden}
+.agraph{border-radius:14px;background-color:var(--soft);background-image:radial-gradient(circle,var(--gdot) 1px,transparent 1.4px);background-size:18px 18px;padding:6px;overflow:hidden}
 .faces[hidden],.agraph[hidden]{display:none!important}
 .agraph svg.ag-g{display:block;width:100%;height:auto}
 .ag-g .eg{fill:none;stroke:var(--accent2);stroke-width:1.6;opacity:.5}
@@ -184,7 +184,7 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 #viewer table{border-collapse:collapse;font-size:12px}
 #viewer td,#viewer th{border:1px solid var(--line);padding:3px 6px;white-space:nowrap}
 /* 바로가기 줄: 데스크톱 왼쪽 세로 / 휴대폰 아래 탭바 */
-.rail{position:fixed;z-index:40;background:var(--card);box-shadow:var(--shadow);display:grid}
+.rail{position:fixed;z-index:40;background:var(--card);border:1px solid var(--cardline);box-shadow:var(--shadow);display:grid}
 .rail a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:650;color:var(--mute);text-decoration:none;border-radius:14px;padding:6px 2px;-webkit-tap-highlight-color:transparent}
 .rail a svg{width:30px;height:30px}
 .rail a.on{color:var(--accent);background:var(--soft)}
@@ -601,7 +601,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="59";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="60";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
