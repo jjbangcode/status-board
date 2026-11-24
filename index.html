@@ -267,7 +267,11 @@ const ST={running:"진행 중",done:"끝남",failed:"실패",unknown:"확인 안
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ago=(t,now)=>{const s=Math.max(0,Math.round(now-t));return s<60?s+"초 전":s<3600?Math.round(s/60)+"분 전":Math.round(s/3600)+"시간 전"};
 const dur=s=>{s=Math.round(s);return s<60?s+"초":s<3600?Math.floor(s/60)+"분 "+(s%60)+"초":Math.floor(s/3600)+"시간 "+Math.round(s%3600/60)+"분"};
-function notesHTML(ns){return (ns||[]).map(n=>`<div class="note" style="padding:8px 0"><div class="t">${noteLink((n.files||[])[0],"📝 "+n.title)}</div><div class="mute" style="font-size:12px">${esc(n.date)}</div></div>`).join("")||`<div class="empty">노트 없음</div>`}
+function notesHTML(ns){ns=ns||[];if(!ns.length)return `<div class="empty">노트 없음</div>`;const P=8,np=Math.ceil(ns.length/P);let pg=Math.min(window.__npg||0,np-1);const cur=ns.slice(pg*P,pg*P+P);
+  const rows=cur.map(n=>`<div style="padding:4px 0;font-size:14px;line-height:1.35">${noteLink((n.files||[])[0],n.title)} <span class="mute" style="font-size:11px">${esc(n.date)}</span></div>`).join("");
+  const nav=np>1?`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${Array.from({length:np},(_,i)=>`<button class="npg" data-p="${i}" style="min-width:32px;padding:4px 8px;border-radius:6px;border:1px solid #999;background:${i===pg?"#2f6f5e":"#f4f4f4"};color:${i===pg?"#fff":"#222"};cursor:pointer">${i+1}</button>`).join("")}</div>`:"";
+  return rows+nav}
+document.addEventListener("click",e=>{const b=e.target.closest(".npg");if(!b)return;window.__npg=+b.dataset.p;if(window.__d)document.getElementById("notes").innerHTML=notesHTML(window.__d.notes)});
 
 function todoHTML(d,now){
   const items=[];
