@@ -475,12 +475,12 @@ function graphHTML(D,mode){const L=AGLAY[mode],P=L.p,w=L.w,h=L.h,now=D.now||Date
   return `<svg class="ag-g${mode==="narrow"?" nar":""}" viewBox="0 0 ${L.W} ${L.H}" role="img" aria-label="에이전트 연결 그래프">`+
    `<rect class="sbx" x="${S.x}" y="${S.y}" width="${S.w}" height="${S.h}" rx="16"/><text class="sec" x="${S.x+S.w/2}" y="${S.y+20}" text-anchor="middle">${S.t}</text>`+
    AGE.map(edge).join("")+Object.keys(AGL).map(node).join("")+`</svg>`}
-let AGVIEW=(()=>{try{return localStorage.getItem("agview2")||"icons"}catch(_){return "icons"}})();
+let AGVIEW=(()=>{try{return localStorage.getItem("agview3")||"graph"}catch(_){return "graph"}})();
 const AGMQ=window.matchMedia?matchMedia("(max-width:768px)"):{matches:false};
 function agDraw(){const g=document.getElementById("agraph"),f=document.getElementById("faces"),b=document.getElementById("vbtn");if(!g||!f)return;
   const gr=AGVIEW==="graph";g.hidden=!gr;f.hidden=gr;if(b)b.textContent=gr?"아이콘으로 보기":"연결 그래프로 보기";
   if(gr&&window.__d)g.innerHTML=graphHTML(window.__d,AGMQ.matches?"narrow":"wide")}
-{const b=document.getElementById("vbtn");if(b)b.onclick=()=>{AGVIEW=AGVIEW==="graph"?"icons":"graph";try{localStorage.setItem("agview2",AGVIEW)}catch(_){}agDraw()};
+{const b=document.getElementById("vbtn");if(b)b.onclick=()=>{AGVIEW=AGVIEW==="graph"?"icons":"graph";try{localStorage.setItem("agview3",AGVIEW)}catch(_){}agDraw()};
  try{AGMQ.addEventListener("change",agDraw)}catch(_){try{AGMQ.addListener(agDraw)}catch(__){}}}
 function team(ag,now){
   const G=(window.__d&&window.__d.guard)||{state:"off"};
@@ -598,7 +598,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="63";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="64";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
