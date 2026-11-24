@@ -67,9 +67,9 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 .v.warn{color:var(--warn)}.v.bad{color:var(--bad)}.v.ok{color:var(--ok)}
 /* 지금 일하는 에이전트 */
 .faces{display:flex;flex-wrap:wrap;gap:6px 4px}
-.faces .f{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;width:60px;font-size:10.5px;line-height:1.25;text-align:center;color:var(--mute);opacity:.5;transition:opacity .2s}
+.faces .f{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;width:60px;font-size:10.5px;line-height:1.25;text-align:center;color:var(--mute);opacity:.85;transition:opacity .2s}
 .faces .f .gh{width:40px;height:40px;margin:2px 0 3px}
-.faces .f:not(.on) .gh{filter:grayscale(.7);transform:rotate(-6deg)}
+.faces .f:not(.on) .gh{transform:rotate(-6deg)}
 .faces .f.on{opacity:1;color:var(--ink);font-weight:650}
 .faces .f.on .gh{animation:float 2.4s ease-in-out infinite}
 .faces .f.on::before{content:"";position:absolute;z-index:-1;top:16px;left:50%;width:46px;height:46px;margin-left:-23px;border-radius:50%;background:var(--soft);box-shadow:0 0 0 0 rgba(43,43,43,.25);animation:pulse 2s ease-out infinite}
@@ -86,10 +86,9 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 .ag-g .eg.bk{stroke-dasharray:4 4}
 .ag-g .eg.flow{stroke:var(--accent);stroke-width:2.4;opacity:1;stroke-dasharray:7 6;animation:agflow .9s linear infinite}
 .ag-g .ah{fill:var(--accent2);opacity:.7}.ag-g .ah.on{fill:var(--accent);opacity:1}
-.ag-g .nd{opacity:.5}
+.ag-g .nd{opacity:.85}
 .ag-g .nd .bx{fill:var(--card);stroke:var(--line);stroke-width:1.2}
 .ag-g .nd text{fill:var(--mute);font-size:13px;font-weight:600}
-.ag-g .nd .gh{filter:grayscale(.6)}
 .ag-g.nar .nd text{font-size:14.5px}
 .ag-g .nd.on{opacity:1}
 .ag-g .nd.on .bx{stroke:var(--accent);stroke-width:2.4}
@@ -476,12 +475,12 @@ function graphHTML(D,mode){const L=AGLAY[mode],P=L.p,w=L.w,h=L.h,now=D.now||Date
   return `<svg class="ag-g${mode==="narrow"?" nar":""}" viewBox="0 0 ${L.W} ${L.H}" role="img" aria-label="에이전트 연결 그래프">`+
    `<rect class="sbx" x="${S.x}" y="${S.y}" width="${S.w}" height="${S.h}" rx="16"/><text class="sec" x="${S.x+S.w/2}" y="${S.y+20}" text-anchor="middle">${S.t}</text>`+
    AGE.map(edge).join("")+Object.keys(AGL).map(node).join("")+`</svg>`}
-let AGVIEW=(()=>{try{return localStorage.getItem("agview")||"graph"}catch(_){return "graph"}})();
+let AGVIEW=(()=>{try{return localStorage.getItem("agview2")||"icons"}catch(_){return "icons"}})();
 const AGMQ=window.matchMedia?matchMedia("(max-width:768px)"):{matches:false};
 function agDraw(){const g=document.getElementById("agraph"),f=document.getElementById("faces"),b=document.getElementById("vbtn");if(!g||!f)return;
   const gr=AGVIEW==="graph";g.hidden=!gr;f.hidden=gr;if(b)b.textContent=gr?"아이콘으로 보기":"연결 그래프로 보기";
   if(gr&&window.__d)g.innerHTML=graphHTML(window.__d,AGMQ.matches?"narrow":"wide")}
-{const b=document.getElementById("vbtn");if(b)b.onclick=()=>{AGVIEW=AGVIEW==="graph"?"icons":"graph";try{localStorage.setItem("agview",AGVIEW)}catch(_){}agDraw()};
+{const b=document.getElementById("vbtn");if(b)b.onclick=()=>{AGVIEW=AGVIEW==="graph"?"icons":"graph";try{localStorage.setItem("agview2",AGVIEW)}catch(_){}agDraw()};
  try{AGMQ.addEventListener("change",agDraw)}catch(_){try{AGMQ.addListener(agDraw)}catch(__){}}}
 function team(ag,now){
   const G=(window.__d&&window.__d.guard)||{state:"off"};
@@ -599,7 +598,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="62";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="63";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
