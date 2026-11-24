@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>실험 노트</title>
-<style>:root{--bg:#F3F1FA;--ink:#2E3247;--accent:#7C6FD6;--soft:#EEEBFB}
-@media (prefers-color-scheme:dark){:root{--bg:#17162B;--ink:#ECEAF7;--accent:#A79BF0;--soft:#2D2A4C}}
-body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--ink);padding:24px 16px}
-#back{display:inline-block;font-weight:650;padding:8px 16px;border-radius:99px;background:var(--accent);color:#fff;text-decoration:none}</style></head>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400&display=swap" rel="stylesheet"><style>:root{--bg:#FFFFFF;--ink:#2B2B2B;--accent:#2B2B2B;--soft:#F5F3EF;--onacc:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#171715;--ink:#ECE9E2;--accent:#ECE9E2;--soft:#2A2926;--onacc:#1B1B1A}}
+body{margin:0;font:300 16px/1.65 "Jost","Pretendard","Apple SD Gothic Neo",-apple-system,sans-serif;background:var(--bg);color:var(--ink);padding:24px 16px}
+#back{display:inline-block;font-weight:650;padding:8px 16px;border-radius:99px;background:var(--accent);color:var(--onacc);text-decoration:none}</style></head>
 <body><p><a id="back" href="./">← 대시보드로</a></p><p id="msg">노트를 불러오는 중…</p>
 <script>
 // 주소: note.html#<파일 gist id>/<파일 이름(인코딩)>  — # 뒤는 서버로 안 감
@@ -22,8 +22,8 @@ body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Ne
       const q=await get(im.dataset.src.replace(/\//g,"__")+".b64");
       if(q)im.src="data:image/png;base64,"+(await q.text()).trim();else im.alt="(그림 올리는 중) "+im.alt}catch(_){}}));
     const bar=doc.createElement("div");   // 위에 늘 보이는 '대시보드로' 줄
-    bar.innerHTML='<a href="'+home+'" style="display:inline-block;font:650 15px -apple-system,sans-serif;padding:8px 16px;border-radius:99px;background:#7C6FD6;color:#fff;text-decoration:none;box-shadow:0 4px 12px rgba(124,111,214,.28)">← 대시보드로</a>';
-    bar.style.cssText="position:sticky;top:0;z-index:9;padding:10px 16px;background:rgba(243,241,250,.94);border-bottom:1px solid #E4DFF5;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)";
+    bar.innerHTML='<a href="'+home+'" style="display:inline-block;font:400 15px Jost,-apple-system,sans-serif;letter-spacing:.04em;padding:8px 16px;border-radius:99px;background:#2B2B2B;color:#fff;text-decoration:none">← 대시보드로</a>';
+    bar.style.cssText="position:sticky;top:0;z-index:9;padding:10px 16px;background:rgba(250,248,245,.94);border-bottom:1px solid #E4E2DE;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)";
     doc.body.insertBefore(bar,doc.body.firstChild);
     document.open();document.write("<!doctype html>"+doc.documentElement.outerHTML);document.close();
   }catch(e){document.getElementById("msg").textContent="노트를 못 불러왔어요 ("+(e.message||e)+"). 1~2분 뒤 다시 열어 보세요."}
