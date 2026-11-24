@@ -86,22 +86,24 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 .ag-g .eg.bk{stroke-dasharray:4 4}
 .ag-g .eg.flow{stroke:var(--accent);stroke-width:2.4;opacity:1;stroke-dasharray:7 6;animation:agflow .9s linear infinite}
 .ag-g .ah{fill:var(--accent2);opacity:.7}.ag-g .ah.on{fill:var(--accent);opacity:1}
-.ag-g .nd{opacity:.85}
-.ag-g .nd .bx{fill:var(--card);stroke:var(--line);stroke-width:1.2}
+.ag-g .nd{opacity:.6}
+.ag-g .nd .bx{fill:var(--card);stroke:none}
 .ag-g .nd text{fill:var(--mute);font-size:13px;font-weight:600}
 .ag-g.nar .nd text{font-size:14.5px}
 .ag-g .nd.on{opacity:1}
-.ag-g .nd.on .bx{stroke:var(--accent);stroke-width:2.4}
+.ag-g .nd.on .bx{stroke:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.08)) drop-shadow(0 6px 14px rgba(0,0,0,.08))}
+.ag-g .nd.on .ic{transform-box:fill-box;transform-origin:center;animation:float 2.4s ease-in-out infinite}
+.ag-g .nd .tm{fill:var(--mute);font-size:11px;font-weight:500}
 .ag-g .nd.on text{fill:var(--ink);font-weight:750}
 .ag-g .nd.on .gh{filter:none}
-.ag-g .nd .hl{fill:none;stroke:var(--accent);stroke-width:2;opacity:0}
+.ag-g .nd .hl{fill:var(--accent);stroke:none;opacity:0}
 .ag-g .nd.on .hl{transform-box:fill-box;transform-origin:center;animation:agpulse 1.8s ease-out infinite}
 .ag-g .nd.usr .bx{fill:var(--accent);stroke:none}.ag-g .nd.usr text{fill:#fff}.ag-g .nd.usr{opacity:.85}
 .ag-g .tg{fill:var(--accent)}.ag-g .tgt{fill:#fff;font-size:10.5px;font-weight:750}
 .ag-g .sec{fill:var(--mute);font-size:12px;font-weight:700}
 .ag-g .sbx{fill:none;stroke:var(--accent2);stroke-dasharray:3 5;opacity:.6}
 @keyframes agflow{to{stroke-dashoffset:-13}}
-@keyframes agpulse{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.14,1.3)}}
+@keyframes agpulse{0%{opacity:.10;transform:scale(1)}100%{opacity:0;transform:scale(1.08,1.35)}}
 @media (prefers-reduced-motion:reduce){.ag-g .eg.flow,.ag-g .nd.on .hl{animation:none!important}.ag-g .nd.on .hl{opacity:.5}}
 .team{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .ag{border-radius:16px;padding:12px;display:grid;grid-template-columns:auto 1fr;column-gap:10px;gap:4px;background:var(--soft)}
@@ -469,8 +471,8 @@ function graphHTML(D,mode){const L=AGLAY[mode],P=L.p,w=L.w,h=L.h,now=D.now||Date
     else{const s=Math.sign(dx)||1,sx=x1+s*w/2,tx=x2-s*w/2,m=(tx-sx)/2;d=`M${sx} ${y1}C${sx+m} ${y1} ${tx-m} ${y2} ${tx-s*7} ${y2}`;ex=tx;ey=y2;ang=s>0?0:180}
     return `<path class="eg${kind?" "+kind:""}${act?" flow":""}" d="${d}"/><path class="ah${act?" on":""}" d="M0 0L-9 -5L-9 5Z" transform="translate(${ex} ${ey}) rotate(${ang})"/>`};
   const node=k=>{const [id,nm]=AGL[k],[cx,cy]=P[k],x=cx-w/2,y=cy-h/2,o=isOn(k),st=on[id],ic=L.ic;
-    const tag=o&&st>0?`<rect class="tg" x="${x+w-46}" y="${y-9}" width="46" height="17" rx="8.5"/><text class="tgt" x="${x+w-23}" y="${y+3.5}" text-anchor="middle">${tm(now-st)}</text>`:"";
-    return `<g class="nd${o?" on":""}${id==="user"?" usr":""}"><title>${esc(nm)}${o?" · 일하는 중":""}</title><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/>${agIcon(id,ic,x+9,cy-ic/2)}<text x="${x+ic+16}" y="${cy+4.5}">${esc(nm)}</text>${tag}</g>`};
+    const tt=o?(st>0?tm(now-st)+"째":"일하는 중"):"";
+    return `<g class="nd${o?" on":""}${id==="user"?" usr":""}"><title>${esc(nm)}${o?" · 일하는 중":""}</title><rect class="hl" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><rect class="bx" x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/><g class="ic">${agIcon(id,ic,x+9,cy-ic/2)}</g>${tt?`<text x="${x+ic+16}" y="${cy-1}">${esc(nm)}</text><text class="tm" x="${x+ic+16}" y="${cy+13}">${tt}</text>`:`<text x="${x+ic+16}" y="${cy+4.5}">${esc(nm)}</text>`}</g>`};
   const S=L.side;
   return `<svg class="ag-g${mode==="narrow"?" nar":""}" viewBox="0 0 ${L.W} ${L.H}" role="img" aria-label="에이전트 연결 그래프">`+
    `<rect class="sbx" x="${S.x}" y="${S.y}" width="${S.w}" height="${S.h}" rx="16"/><text class="sec" x="${S.x+S.w/2}" y="${S.y+20}" text-anchor="middle">${S.t}</text>`+
@@ -598,7 +600,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="64";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="65";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
