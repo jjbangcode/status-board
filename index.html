@@ -79,7 +79,7 @@ code{font-size:12px;color:var(--mute);word-break:break-all}
 /* 에이전트 연결 그래프 (2026-11-24) */
 #s-faces h2{display:flex;align-items:center;gap:6px}
 .vbtn{margin-left:auto;font:inherit;font-size:12.5px;font-weight:400;border:0;background:var(--accent);color:var(--onacc);border-radius:99px;padding:5px 12px;cursor:pointer;white-space:nowrap}
-.agraph{border-radius:14px;background-color:var(--soft);background-image:radial-gradient(circle,var(--gdot) 1px,transparent 1.4px);background-size:18px 18px;padding:6px;overflow:hidden}
+.agraph{border-radius:14px;background-color:var(--soft);padding:6px;overflow:hidden}
 .faces[hidden],.agraph[hidden]{display:none!important}
 .agraph svg.ag-g{display:block;width:100%;height:auto}
 .ag-g .eg{fill:none;stroke:var(--brown);stroke-width:1.6;opacity:.45}
@@ -449,9 +449,9 @@ function facesHTML(ag){const D=window.__d||{},G=D.guard||{state:"off"},now=D.now
 const AGL={orch:["orchestrator","오케스트레이터"],raP:["research-advisor","문헌(계획)"],cw:["code-writer","코드 작성"],cc:["code-checker","코드 점검"],cm:["compute-manager","계산 조절"],ran:["results-analyst","결과 분석"],fm:["figure-maker","그래프"],nw:["note-writer","실험노트"],rp:["review-panel","심사 패널"],raV:["research-advisor","문헌(검증)"],pw:["paper-writer","논문 초안"],cr:["codex-reviewer","Codex 검토"],usr:["user","사용자"],sr:["session-recorder","기록"],tw:["token-watcher","토큰 감시"],hp:["html-publisher","노트 HTML"],dm:["debate-moderator","토론"]};
 const AGE=[["orch","raP"],["raP","cw"],["cw","cc"],["cc","cw","bk"],["cc","cm"],["cm","ran"],["ran","fm"],["ran","nw"],["fm","rp"],["nw","raV"],["rp","pw"],["raV","pw"],["pw","cr"],["cr","usr"]];
 const AGLAY={
- wide:{W:900,H:470,w:136,h:54,ic:34,side:{x:712,y:84,w:176,h:372,t:"옆에서 돕는 에이전트"},
+ wide:{W:900,H:470,w:150,h:60,ic:50,side:{x:712,y:84,w:176,h:372,t:"옆에서 돕는 에이전트"},
   p:{orch:[340,40],raP:[90,140],cw:[250,140],cc:[410,140],cm:[570,140],ran:[570,262],fm:[410,222],nw:[410,302],rp:[250,222],raV:[250,302],pw:[90,262],cr:[90,400],usr:[250,400],sr:[800,140],tw:[800,220],hp:[800,300],dm:[800,380]}},
- narrow:{W:360,H:940,w:150,h:52,ic:32,side:{x:6,y:772,w:348,h:162,t:"옆에서 돕는 에이전트"},
+ narrow:{W:360,H:940,w:160,h:60,ic:46,side:{x:6,y:772,w:348,h:162,t:"옆에서 돕는 에이전트"},
   p:{orch:[180,36],raP:[95,122],cw:[265,122],cc:[265,206],cm:[95,206],ran:[95,290],fm:[95,380],nw:[265,380],rp:[95,462],raV:[265,462],pw:[180,546],cr:[180,628],usr:[180,710],sr:[95,824],tw:[265,824],hp:[95,898],dm:[265,898]}}};
 function agOn(D){const ag=D.agents||[],G=D.guard||{state:"off"},o=D.orchestrator||{},now=D.now||Date.now()/1000,on={};
   for(const a of ag)if(a.state==="running"){const id=a.role&&AGL_IDS.has(a.role)?a.role:a.agent;if(!on[id]||a.start<on[id])on[id]=a.start||now}
@@ -600,7 +600,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="66";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="67";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
