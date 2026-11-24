@@ -235,7 +235,6 @@ main>section.card:nth-of-type(5){animation-delay:.2s}main>section.card:nth-of-ty
   <a href="#s-todo"><i data-gh="check"></i><span>할 일</span></a>
   <a href="#s-sys"><i data-gh="gear"></i><span>컴퓨터</span></a>
   <a href="#s-notes"><i data-gh="note"></i><span>노트</span></a>
-  <a href="#s-orch"><i data-gh="wand"></i><span>지휘</span></a>
 </nav>
 <main id="top">
   <header><div class="mascot" data-gh="base"></div><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><div class="hbtns"><a id="rvlink" class="hbtn" href="review.html">리뷰 현황 →</a><button id="rf" class="hbtn pri">새로고침</button></div></header>
@@ -257,7 +256,6 @@ main>section.card:nth-of-type(5){animation-delay:.2s}main>section.card:nth-of-ty
 
   <section class="card" id="s-notes"><h2><i class="hi" data-gh="note"></i>실험 노트 · 결과 정리</h2><div id="notes" class="list"></div></section>
 
-  <section class="card" id="s-orch"><h2><i class="hi" data-gh="wand"></i>오케스트레이터</h2><div id="orch" class="empty">기록 없음</div></section>
   <section class="card" style="display:none"><h2>에이전트 13명</h2><div id="team" class="team"></div><div id="agents" style="display:none"></div></section>
 </main>
 <div id="viewer"><div class="bar"><b id="vname"></b><button id="vclose">닫기</button></div><div class="body" id="vbody"></div></div>
@@ -557,7 +555,6 @@ function render(d){window.__d=d;UP=new Set(d.uploaded||[]);FG=d.files_gist||"";
   const now=d.now, o=d.orchestrator;
   document.getElementById("upd").textContent="업데이트 "+new Date(now*1000).toLocaleTimeString("ko-KR");
   const busy=o.state==="busy";
-  document.getElementById("orch").innerHTML=o.since?`<div class="row"><span class="dot ${busy?"busy":"done"}"></span><span class="big">${busy?"일하는 중":"대기 중"}</span><span class="mute">${ago(o.since,now)}부터</span></div>`:`<span class="empty">아직 기록 없음 (새 세션부터 기록돼요)</span>`;
   const ag=d.agents;
   document.getElementById("team").innerHTML=team(ag,now);
   document.getElementById("faces").innerHTML=facesHTML(ag);
@@ -602,7 +599,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="61";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="62";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
