@@ -169,7 +169,7 @@ a.fbtn{text-decoration:none;display:inline-block}
   <header><h1>연구 작업 현황</h1><span class="upd" id="upd">불러오는 중…</span><a id="rvlink" href="review.html" style="font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px;text-decoration:none">리뷰 현황 →</a><button id="rf" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:4px 10px">새로고침</button></header>
 
   <section class="card"><h2>지금 일하는 에이전트</h2><div id="faces" class="faces"></div></section>
-  <section class="card"><h2>받은 편지함 (Inbox)<span id="ibc" style="margin-left:6px"></span></h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">굵은 글씨 = 안 읽음 (누르면 읽음, 이 휴대폰에 저장) · 답은 ✏️ 답장하기 (또는 채팅에 번호로) · 다 본 항목은 "✓ 처리" 로 숨김</div><div id="inbox" class="list"></div></section>
+  <section class="card"><h2>받은 편지함 (Inbox)<span id="ibc" style="margin-left:6px"></span></h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">질문 내용·그림은 답장 편지함에서 봅니다</div><div id="inbox" class="list"></div></section>
   <section class="card"><h2>논문 그림 (최종본)</h2><div class="mute" style="font-size:13px;margin:-4px 0 8px">"그림 보기" 를 누르면 그림이 열려요</div><div id="pfigs" class="list"></div></section>
 
 
@@ -305,22 +305,11 @@ function ibGet(){try{return JSON.parse(localStorage.getItem("inbox_seen_v1")||"{
 function ibSet(o){try{localStorage.setItem("inbox_seen_v1",JSON.stringify(o))}catch(_){}}
 function ibDone(){try{return JSON.parse(localStorage.getItem("inbox_done_v1")||"{}")}catch(_){return {}}}
 function ibDoneSet(o){try{localStorage.setItem("inbox_done_v1",JSON.stringify(o))}catch(_){}}
-function inboxHTML(d){const S=ibGet(),DN=ibDone(),ALL=Array.isArray(d.inbox)?d.inbox:[],ITEMS=window.__ibHid?ALL:ALL.filter(x=>!DN[x.n]),nhid=ALL.filter(x=>DN[x.n]).length;const IC={"결과":"📊","질문":"❓","알림":"🔔"};
-  const it=ITEMS.map(x=>({...x,seen:!!S[x.n],wait:x.status==="답 기다림"}));
-  const act=it.filter(x=>x.wait||(!x.seen&&x.status!=="답함")),old=it.filter(x=>!act.includes(x));
-  act.sort((a,b)=>b.wait-a.wait||a.seen-b.seen||b.n-a.n);old.sort((a,b)=>b.n-a.n);
-  const nw=it.filter(x=>x.wait).length,nn=it.filter(x=>!x.seen&&x.status!=="답함").length;
-  const c=document.getElementById("ibc");if(c)c.textContent=(nw?`답 기다림 ${nw}`:"")+(nw&&nn?" · ":"")+(nn?`새 ${nn}`:"");
-  const tm=t=>{const z=new Date(t);return isNaN(z)?"":z.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})};
-  const row=(x,o)=>`<div class="ib${x.seen?"":" new"}${o?" old":""}" data-n="${esc(x.n)}"><div class="no">#${esc(x.n)}</div><div>
-    <div class="t">${IC[x.kind]||"•"} ${esc(x.title)}${x.kind==="질문"||x.status==="답함"?(x.status==="답함"?'<span class="bdg ok">답함 ✓</span>':x.wait?'<span class="bdg">답 기다림</span>':""):""}</div>
-    ${x.summary?`<div class="s">${esc(x.summary)}</div>`:""}${x.status==="답함"&&x.answer?`<div class="ans">답: ${esc(x.answer)}</div>`:""}
-    ${(x.links||[]).filter(l=>/\.png$/i.test(l.file||"")&&UP.has(l.file)).slice(0,3).map(l=>`<img class="ibthumb" data-f="${esc(l.file)}" alt="${esc(l.label||"그림")}" style="display:block;width:100%;max-width:640px;margin:6px 0;border:1px solid #ddd;border-radius:6px;min-height:40px;background:#f6f6f6">`).join("")}${(x.links||[]).length?`<div class="files">${x.links.map(l=>/\.png$/i.test(l.file||"")?`<button class="fbtn${UP.has(l.file)?"":" off"}" data-f="${esc(l.file)}">🖼 ${esc(l.label||"그림")}</button>`:`<span class="iblink">${noteLink(l.file,"📝 "+(l.label||"열기"))}</span>`).join(" ")}</div>`:""}
-    <div class="m">${esc(x.kind)} · ${tm(x.ts)} ${x.wait?`<a href="https://claude.ai/artifact/SydSNQBRYRVhhSykTwkW56#q${esc(x.n)}" target="_blank" rel="noopener" style="margin-left:6px;font-weight:600;padding:2px 10px;border-radius:6px;background:#2f6f5e;color:#fff;text-decoration:none">✏️ 답장하기</a>`:""} <button class="ibdone" data-n="${esc(x.n)}" style="float:right;font-size:12px;padding:2px 8px;border:1px solid #999;border-radius:6px;background:#f4f4f4;cursor:pointer">${DN[x.n]?"되살리기":"✓ 처리"}</button></div></div></div>`;
-  const tail=`<div class="ibbar">${nn?'<button class="fbtn ibread">모두 읽음</button>':""}${nhid?`<button class="fbtn ibhid">${window.__ibHid?"처리한 항목 숨기기":"처리한 항목 ("+nhid+")"}</button>`:""}${old.length?`<button class="fbtn ibold">${window.__ibAll?"지난 항목 접기":"지난 항목 ("+old.length+")"}</button>`:""}</div>`;
-  return (act.map(x=>row(x,0)).join("")||'<div class="empty">새 소식 없음</div>')+(window.__ibAll?old.map(x=>row(x,1)).join(""):"")+tail}
-
-const __thumbCache={};async function loadThumbs(){for(const im of document.querySelectorAll("img.ibthumb:not([src])")){const f=im.dataset.f;try{if(!__thumbCache[f]){const key=(f.replace(/\//g,"__")+".b64").normalize("NFC");const r=await fetch("https://gist.githubusercontent.com/jjbangcode/"+FG+"/raw/"+encodeURIComponent(key)+"?t="+Date.now());__thumbCache[f]="data:image/png;base64,"+(await r.text()).trim()}im.src=__thumbCache[f];im.onclick=()=>openFile(f)}catch(e){im.alt="그림을 불러오지 못함"}}}
+function inboxHTML(d){const ALL=Array.isArray(d.inbox)?d.inbox:[];const W=ALL.filter(x=>x.status==="답 기다림").sort((a,b)=>b.n-a.n);
+  const c=document.getElementById("ibc");if(c)c.textContent=W.length?`답 기다림 ${W.length}`:"";
+  const U="https://claude.ai/artifact/SydSNQBRYRVhhSykTwkW56";
+  const btn=x=>`<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #e3e3e3"><b style="min-width:36px">#${esc(x.n)}</b><span style="flex:1">${esc(x.title)}</span><a href="${U}#q${esc(x.n)}" target="_blank" rel="noopener" style="white-space:nowrap;font-weight:600;padding:6px 12px;border-radius:8px;background:#2f6f5e;color:#fff;text-decoration:none">✏️ 답</a></div>`;
+  return (W.map(btn).join("")||'<div class="empty">답 기다리는 질문 없음</div>')+`<div style="margin-top:8px"><a href="${U}" target="_blank" rel="noopener">답장 편지함 전체 열기</a></div>`}
 function ibRedraw(){if(window.__d){document.getElementById("inbox").innerHTML=inboxHTML(window.__d);loadThumbs()}}
 document.addEventListener("click",e=>{
   const dn=e.target.closest(".ibdone");if(dn){e.preventDefault();e.stopPropagation();const D=ibDone(),n=dn.dataset.n;if(D[n])delete D[n];else D[n]=1;ibDoneSet(D);const S=ibGet();S[n]=1;ibSet(S);ibRedraw();return}
