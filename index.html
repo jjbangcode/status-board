@@ -483,7 +483,7 @@ const TEAM=[["code-writer","코드 작성","새 코드·수정"],["code-checker"
 function nowHTML(ag,now){
   const run=TEAM.map(([id,nm])=>[id,nm,ag.find(a=>(a.role===id||a.agent===id)&&a.state==="running")]).filter(x=>x[2]);
   return run.map(([id,nm,r])=>`<div class="nw">${sprite(id)}<div><div class="n">${gl("hour",18)} ${nm} <span class="t">· ${dur(now-r.start)}째</span></div><div class="d">${esc(r.desc||"")}</div></div></div>`).join("")||`<div class="empty">지금 일하는 에이전트 없음</div>`}
-const IMG={"orchestrator":"orchestrator","code-writer":"code_write","code-checker":"code_check","compute-manager":"compute_control","codex-reviewer":"codex_review","research-advisor":"literature","paper-writer":"paper_draft","review-panel":"review_panel","figure-maker":"graph","note-writer":"lab_note","results-analyst":"result_analysis","user":"user","session-recorder":"record","token-watcher":"token_watch","html-publisher":"note_html","debate-moderator":"discussion"};
+const IMG={"orchestrator":"orchestrator","code-writer":"code_write","code-checker":"code_check","compute-manager":"compute_control","codex-reviewer":"codex_review","research-advisor":"literature","paper-writer":"paper_draft","review-panel":"review_panel","figure-maker":"graph","note-writer":"lab_note","results-analyst":"result_analysis","user":"user","session-recorder":"record","token-watcher":"token_watch","html-publisher":"note_html","debate-moderator":"discussion","journal-checker":"journal_format"};
 const IMGK=Object.keys(IMG);function phase(id){return ((IMGK.indexOf(id)*0.37)%1.6).toFixed(2)}
 function agImg(id,on){const nm=NAME[id]||id;return on?`<span class="aimg wk" style="--dl:-${phase(id)}s" role="img" aria-label="${nm} 일하는 중"><img src="./img/${IMG[id]}_working.png" alt="" width="76" height="76" decoding="async"><i class="sp s1"></i><i class="sp s2"></i><i class="sp s3"></i><i class="sp s4"></i></span>`:`<span class="aimg sl" style="--dl:-${(phase(id)*2.2).toFixed(2)}s" role="img" aria-label="${nm} 쉬는 중"><img src="./img/${IMG[id]}_sleeping.png" alt="" width="76" height="76" decoding="async"><i class="zz z1">z</i><i class="zz z2">z</i><i class="zz z3">Z</i></span>`}
 function facesHTML(ag){const D=window.__d||{},G=D.guard||{state:"off"},now=D.now||Date.now()/1000,o=D.orchestrator||{};
@@ -651,7 +651,7 @@ async function tick(){
       else document.getElementById("upd").textContent="Mac 기준 "+new Date(d.now*1000).toLocaleTimeString("ko-KR")+" ("+Math.round(late)+"초 전)";}
   catch(e){document.getElementById("upd").textContent="불러오기 실패 — 잠시 뒤 다시 시도해요"}
 }
-const VER="72";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
+const VER="73";   // 화면 버전: 바뀌면 휴대폰에 남아 있는 옛 화면을 스스로 새로 받음
 async function verCheck(){try{const t=await (await fetch(location.pathname+"?nc="+Date.now(),{cache:"no-store"})).text();
   const m=t.match(/const VER="(\d+)"/);if(m&&m[1]!==VER)location.replace(location.pathname+"?v="+m[1]+location.hash)}catch(_){}}
 tick();verCheck();setInterval(()=>{tick();verCheck()},90000);
